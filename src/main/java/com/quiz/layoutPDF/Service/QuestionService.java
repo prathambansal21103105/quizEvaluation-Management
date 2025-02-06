@@ -78,4 +78,40 @@ public class QuestionService {
             throw new Exception("Answer not added");
         }
     }
+
+    public Long createDuplicateQuestionForQuiz(Long quizId, Question question) {
+        Quiz quiz = quizRepository.findById(quizId).orElse(null);
+        if (quiz == null) {
+            return null;
+        }
+        Question newQuestion = new Question();
+        newQuestion.setQuiz(quiz);
+        newQuestion.setOptions(question.getOptions());
+        newQuestion.setAnswer(question.getAnswer());
+        newQuestion.setQuestion(question.getQuestion());
+        newQuestion.setMarks(question.getMarks());
+        newQuestion.setQuestionNum(question.getQuestionNum());
+        questionRepository.save(newQuestion);
+        return newQuestion.getId();
+    }
+
+    public Boolean updateQuestionForQuiz(Long questionId, Question question) {
+        Question questionToUpdate = questionRepository.findById(questionId).orElse(null);
+        if (questionToUpdate == null) {
+            return false;
+        }
+        questionToUpdate.setQuestion(question.getQuestion());
+        questionToUpdate.setMarks(question.getMarks());
+        questionToUpdate.setQuestionNum(question.getQuestionNum());
+        questionToUpdate.setAnswer(question.getAnswer());
+        questionToUpdate.setOptions(question.getOptions());
+        try {
+            questionRepository.save(questionToUpdate);
+            return true;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
 }
