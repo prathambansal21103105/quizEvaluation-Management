@@ -31,6 +31,21 @@ public class QuestionService {
         return savedQuestion.getId();
     }
 
+    public boolean addAnswerToQuestion(Long questionId, String answer) {
+        Question question = questionRepository.findById(questionId).orElse(null);
+        if (question == null) {
+            return false;
+        }
+        try {
+            question.setAnswer(answer);
+            questionRepository.save(question);
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
+
     public Question getQuestionById(Long questionId) {
         Optional<Question> questionOptional = questionRepository.findById(questionId);
         return questionOptional.orElse(null);
@@ -49,5 +64,18 @@ public class QuestionService {
             return true;
         }
         return false;
+    }
+
+    public void addAnswer(Long id, String answer) throws Exception {
+        Question question=getQuestionById(id);
+        try {
+            if (question != null) {
+                question.setAnswer(answer);
+                questionRepository.save(question);
+            }
+        }
+        catch (Exception e) {
+            throw new Exception("Answer not added");
+        }
     }
 }

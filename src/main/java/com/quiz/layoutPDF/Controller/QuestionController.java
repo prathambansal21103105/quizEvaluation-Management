@@ -39,4 +39,17 @@ public class QuestionController {
                 : new ResponseEntity<>("Question not found or error occurred", HttpStatus.BAD_REQUEST);
     }
 
+    @PostMapping("/addAnswer/{questionId}")
+    public ResponseEntity<String> addAnswerById(@PathVariable Long questionId, @RequestBody String answer) {
+        Question question = questionService.getQuestionById(questionId);
+        if (question != null) {
+            Boolean added = questionService.addAnswerToQuestion(questionId, answer);
+            if (added) {
+                return new ResponseEntity<>("Answer added successfully", HttpStatus.CREATED);
+            }
+            return new ResponseEntity<>("Answer not added", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Question not found or error occurred", HttpStatus.BAD_REQUEST);
+    }
+
 }

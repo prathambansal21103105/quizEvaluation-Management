@@ -1,7 +1,9 @@
 package com.quiz.layoutPDF.Controller;
 
+import com.quiz.layoutPDF.Service.QuestionService;
 import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
+import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,12 +17,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/quiz")
 public class QuizController {
+    private final QuestionService questionService;
     private QuizService quizService;
     private PdfService pdfService;
 
-    public QuizController(QuizService quizService, PdfService pdfService) {
+    public QuizController(QuizService quizService, PdfService pdfService, QuestionService questionService) {
         this.quizService = quizService;
         this.pdfService = pdfService;
+        this.questionService = questionService;
     }
 
     @GetMapping("/course/{courseCode}")
@@ -69,5 +73,22 @@ public class QuizController {
             return new ResponseEntity<>("Quiz successfully deleted", HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>("Quiz successfully deleted", HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("addAnswers/{id}")
+    public ResponseEntity<String> addAnswersForQuiz(@PathVariable Long id, @RequestBody List<String> answers) {
+        Quiz quiz = quizService.getQuizById(id);
+        if(quiz != null) {
+            Boolean added = quizService.addAnswersForQuiz(quiz,answers);
+            if(added) {
+                return new ResponseEntity<>("Answers successfully added", HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>("Answers not added", HttpStatus.BAD_REQUEST);
+            }
+        }
+        else{
+            return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
+        }
     }
 }
