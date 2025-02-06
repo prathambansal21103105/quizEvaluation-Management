@@ -1,9 +1,7 @@
 package com.quiz.layoutPDF.Controller;
 
-import com.quiz.layoutPDF.Service.QuestionService;
 import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
-import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,14 +15,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/quiz")
 public class QuizController {
-    private final QuestionService questionService;
     private QuizService quizService;
     private PdfService pdfService;
 
-    public QuizController(QuizService quizService, PdfService pdfService, QuestionService questionService) {
+    public QuizController(QuizService quizService, PdfService pdfService) {
         this.quizService = quizService;
         this.pdfService = pdfService;
-        this.questionService = questionService;
     }
 
     @GetMapping("/course/{courseCode}")

@@ -11,6 +11,7 @@ public class Question {
     private Long id;
 
     private String questionNum;
+    @Column(name = "question", columnDefinition = "TEXT")
     private String question;
     private Long marks;
     private String answer;
@@ -36,6 +37,7 @@ public class Question {
         this.answer = answer;
     }
 
+    @ElementCollection
     private List<String> options;
 
     @ManyToOne(fetch = FetchType.LAZY)
