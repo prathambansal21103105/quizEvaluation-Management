@@ -87,4 +87,23 @@ public class QuizController {
             return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
         }
     }
+
+    @PostMapping("update/{id}")
+    public ResponseEntity<String> updateQuiz(@PathVariable Long id, @RequestBody Quiz quiz) {
+        Boolean updated = quizService.updateQuiz(id,quiz);
+        if(updated) {
+            return new ResponseEntity<>("Quiz successfully updated", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Quiz not updated", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("duplicate/{id}")
+    public ResponseEntity<String> createDuplicateQuiz(@PathVariable Long id) {
+        Quiz quiz = quizService.getQuizById(id);
+        if(quiz != null) {
+            Long quizId = quizService.createDuplicate(id);
+            return new ResponseEntity<>("Duplicate quiz created with id " + quizId, HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
+    }
 }

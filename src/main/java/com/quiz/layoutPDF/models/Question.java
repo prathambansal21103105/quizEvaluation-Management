@@ -37,7 +37,6 @@ public class Question {
         this.answer = answer;
     }
 
-    @ElementCollection
     private List<String> options;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -18,8 +18,7 @@ public class Quiz {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
 
-    public Quiz(Long id, String title, String course, String courseCode, Long maxMarks, List<Question> questions) {
-        this.id = id;
+    public Quiz(String title, String course, String courseCode, Long maxMarks, List<Question> questions) {
         this.title = title;
         this.course = course;
         this.courseCode = courseCode;
