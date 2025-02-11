@@ -82,7 +82,7 @@ public class QuizService {
     public Long createDuplicate(Long id) {
         Quiz savedQuiz = getQuizById(id);
         List<Question> questions = savedQuiz.getQuestions();
-        Quiz newQuiz = new Quiz(savedQuiz.getTitle() + " (Duplicate)", savedQuiz.getCourse(), savedQuiz.getCourseCode(), savedQuiz.getMaxMarks(),new ArrayList<>());
+        Quiz newQuiz = new Quiz(savedQuiz.getTitle() + " (Duplicate)", savedQuiz.getCourse(), savedQuiz.getCourseCode(), savedQuiz.getMaxMarks(),new ArrayList<>(),new ArrayList<>());
         Quiz duplicateQuiz = quizRepository.save(newQuiz);
         for(Question question : questions){
             Question newQuestion = new Question();

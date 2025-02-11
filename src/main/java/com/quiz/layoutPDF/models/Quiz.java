@@ -18,12 +18,16 @@ public class Quiz {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
 
-    public Quiz(String title, String course, String courseCode, Long maxMarks, List<Question> questions) {
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlayerResponse> playerResponses;
+
+    public Quiz(String title, String course, String courseCode, Long maxMarks, List<Question> questions, List<PlayerResponse> playerResponses) {
         this.title = title;
         this.course = course;
         this.courseCode = courseCode;
         this.maxMarks = maxMarks;
         this.questions = questions;
+        this.playerResponses = playerResponses;
     }
 
     public Quiz() {}
@@ -75,6 +79,14 @@ public class Quiz {
 
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
+    }
+
+    public List<PlayerResponse> getPlayerResponses() {
+        return playerResponses;
+    }
+
+    public void setPlayerResponses(List<PlayerResponse> playerResponses) {
+        this.playerResponses = playerResponses;
     }
 
     @Override

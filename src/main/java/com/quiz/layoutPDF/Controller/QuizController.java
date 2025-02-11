@@ -68,7 +68,7 @@ public class QuizController {
         if(deleted) {
             return new ResponseEntity<>("Quiz successfully deleted", HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>("Quiz successfully deleted", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Quiz couldn't be deleted", HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("addAnswers/{id}")

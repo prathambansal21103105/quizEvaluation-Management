@@ -15,6 +15,13 @@ public class Question {
     private String question;
     private Long marks;
     private String answer;
+    private List<String> options;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quiz_id", nullable = false)
+    @JsonIgnore
+    private Quiz quiz;
+
 
     @Override
     public String toString() {
@@ -36,13 +43,6 @@ public class Question {
     public void setAnswer(String answer) {
         this.answer = answer;
     }
-
-    private List<String> options;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quiz_id", nullable = false)
-    @JsonIgnore
-    private Quiz quiz;
 
     public Question(Long id, String questionNum, String question, Long marks, List<String> options) {
         this.id = id;
