@@ -7,7 +7,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -30,19 +37,15 @@ public class QuizController {
 
     @PostMapping("")
     public ResponseEntity<String> createQuiz(@RequestBody Quiz quiz) {
-        Long quizId = quizService.addQuiz(quiz);  // Get the quiz ID after creation
+        Long quizId = quizService.addQuiz(quiz);
         return new ResponseEntity<>("Quiz successfully added with ID: " + quizId, HttpStatus.CREATED);
     }
 
     @GetMapping("/generate-pdf/{quizId}")
     public ResponseEntity<byte[]> generateQuizPdf(@PathVariable Long quizId) {
-        // Fetch quiz by ID
         Quiz quiz = quizService.getQuizById(quizId);
-        System.out.println(quiz);
-        // Generate PDF
         if(quiz != null) {
             byte[] pdfContent = pdfService.generateQuizPdf(quiz);
-            // Return PDF as response
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=quiz_" + quizId + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)
@@ -105,5 +108,20 @@ public class QuizController {
             return new ResponseEntity<>("Duplicate quiz created with id " + quizId, HttpStatus.OK);
         }
         return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/evaluate/{id}")
+    public ResponseEntity<String> evaluateQuiz(@PathVariable Long id) {
+        try {
+            Boolean evaluate = quizService.evaluate(id);
+            if(evaluate) {
+                return new ResponseEntity<>("Quiz successfully evaluated", HttpStatus.OK);
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>("Quiz not evaluated", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>("Quiz couldn't be evaluated", HttpStatus.OK);
     }
 }

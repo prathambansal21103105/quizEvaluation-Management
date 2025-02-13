@@ -49,32 +49,27 @@ public class PlayerResponseService {
         if (quiz.isEmpty()) {
             throw new IllegalArgumentException("Quiz not found with ID: " + playerResponseDTO.getQuizId());
         }
-
-        // Check if the player exists, if not, create a new one
         Player player = playerRepository.findById(playerResponseDTO.getPlayerId())
                 .orElseGet(() -> {
                     Player newPlayer = new Player();
-                    newPlayer.setId(playerResponseDTO.getPlayerId());  // Setting ID
-                    newPlayer.setName("Unknown");  // Default name
-                    newPlayer.setBranch("Unknown");  // Default branch
+                    newPlayer.setId(playerResponseDTO.getPlayerId());
+                    newPlayer.setName("Unknown");
+                    newPlayer.setBranch("Unknown");
                     return playerRepository.save(newPlayer);
                 });
 
-        // Check if a response already exists for the given player and quiz
         Optional<PlayerResponse> existingResponse = playerResponseRepository
                 .findByQuizIdAndPlayerId(quiz.get().getId(),player.getId());
 
         if (existingResponse.isPresent()) {
-            // Append marked responses instead of creating a new response
             PlayerResponse playerResponse = existingResponse.get();
             List<String> updatedResponses = new ArrayList<>(playerResponse.getMarkedResponses());
             updatedResponses.addAll(playerResponseDTO.getMarkedResponses());
             playerResponse.setMarkedResponses(updatedResponses);
-            playerResponse.setScore(playerResponseDTO.getScore()); // Update score if needed
+            playerResponse.setScore(playerResponseDTO.getScore());
             playerResponseRepository.save(playerResponse);
             return playerResponse.getId();
         } else {
-            // Create a new PlayerResponse
             PlayerResponse playerResponse = new PlayerResponse();
             playerResponse.setQuiz(quiz.get());
             playerResponse.setPlayer(player);
@@ -94,17 +89,14 @@ public class PlayerResponseService {
 
         PlayerResponse existingPlayerResponse = existingPlayerResponseOpt.get();
 
-        // Check if quiz exists
         Optional<Quiz> quiz = quizRepository.findById(playerResponseDTO.getQuizId());
         if (!quiz.isPresent()) {
             throw new IllegalArgumentException("Quiz with ID " + playerResponseDTO.getQuizId() + " does not exist");
         }
 
-        // Check if player exists, if not, create player
         Player player = playerRepository.findById(playerResponseDTO.getPlayerId())
                 .orElseGet(() -> playerRepository.save(new Player(playerResponseDTO.getPlayerId(), "Unknown", "Unknown")));
 
-        // Update player response
         existingPlayerResponse.setQuiz(quiz.get());
         existingPlayerResponse.setPlayer(player);
         existingPlayerResponse.setMarkedResponses(playerResponseDTO.getMarkedResponses());
@@ -129,6 +121,22 @@ public class PlayerResponseService {
         }
 
         playerResponseRepository.deleteByQuizId(quizId);
+        return true;
+    }
+
+    public boolean updateScore(Long id, Long playerScore) throws Exception {
+        try {
+            Optional<PlayerResponse> playerResponseOpt = playerResponseRepository.findById(id);
+            if (playerResponseOpt.isPresent()) {
+                PlayerResponse playerResponse = playerResponseOpt.get();
+                playerResponse.setScore(playerScore);
+                playerResponseRepository.save(playerResponse);
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception(e.getMessage());
+        }
         return true;
     }
 }

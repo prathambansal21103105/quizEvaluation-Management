@@ -2,6 +2,7 @@ package com.quiz.layoutPDF.Service;
 
 import com.quiz.layoutPDF.Repository.QuestionRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
+import com.quiz.layoutPDF.models.PlayerResponse;
 import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,13 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final QuestionService questionService;
     private final QuestionRepository questionRepository;
+    private final PlayerResponseService playerResponseService;
 
-    public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository) {
+    public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository, PlayerResponseService playerResponseService) {
         this.quizRepository = quizRepository;
         this.questionService = questionService;
         this.questionRepository = questionRepository;
+        this.playerResponseService = playerResponseService;
     }
 
     public List<Quiz> getAllquizes(String courseCode) {
@@ -29,7 +32,7 @@ public class QuizService {
 
     public Long addQuiz(Quiz quiz) {
         Quiz savedQuiz = quizRepository.save(quiz);
-        return savedQuiz.getId(); // Return the ID of the saved quiz
+        return savedQuiz.getId();
     }
 
     public Quiz getQuizById(Long id) {
@@ -96,5 +99,35 @@ public class QuizService {
             questionRepository.save(newQuestion);
         }
         return duplicateQuiz.getId();
+    }
+
+    public Boolean evaluate(Long id) throws Exception {
+        Quiz quiz = getQuizById(id);
+        if(quiz != null) {
+            List<String> answers = questionRepository.findAnswersByQuizId(id);
+            List<Long> marks = questionRepository.findMarksByQuizId(id);
+            List<PlayerResponse> responsesList = quiz.getPlayerResponses();
+            try {
+                for (PlayerResponse playerResponse : responsesList) {
+                    int count = 0;
+                    Long playerScore = 0L;
+                    for (String markedAnswer : playerResponse.getMarkedResponses()) {
+                        if (markedAnswer.equals(answers.get(count))) {
+                            playerScore += marks.get(count);
+                        }
+                        count++;
+                    }
+                    boolean updatedPlayerResponse = playerResponseService.updateScore(playerResponse.getId(), playerScore);
+                    if(!updatedPlayerResponse){
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e){
+                System.out.println(e.getMessage());
+                throw new Exception("Quiz not evaluated successfully");
+            }
+        }
+        return true;
     }
 }
