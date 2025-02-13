@@ -1,6 +1,7 @@
 package com.quiz.layoutPDF.Service;
 
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
@@ -8,10 +9,9 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import org.springframework.stereotype.Service;
-import com.itextpdf.text.pdf.PdfWriter;
-
 import java.io.ByteArrayOutputStream;
 import com.quiz.layoutPDF.models.Quiz;
 import com.quiz.layoutPDF.models.Question;
@@ -35,7 +35,6 @@ public class PdfService {
             PdfPTable courseTable = new PdfPTable(2);
             courseTable.setWidthPercentage(100);
             courseTable.setWidths(new int[]{78, 22});
-
             courseTable.addCell(getCell("Course: " + quiz.getCourse() + " (" + quiz.getCourseCode() + ")", subTitleFont, Rectangle.NO_BORDER));
             courseTable.addCell(getCell("Max Marks: " + quiz.getMaxMarks(), subTitleFont, Rectangle.NO_BORDER));
             document.add(courseTable);
@@ -43,11 +42,7 @@ public class PdfService {
             // Add Name and SID on the first page
             addNameSid(document, subTitleFont);
 
-            // Line Separator
-            LineSeparator lineSeparator = new LineSeparator();
-            lineSeparator.setOffset(-5);
-            document.add(lineSeparator);
-
+            document.add(new LineSeparator());
             document.add(new Paragraph("\n")); // Space before questions
 
             Font questionFont = FontFactory.getFont(FontFactory.HELVETICA, 12);
@@ -56,11 +51,9 @@ public class PdfService {
 
             int questionNumber = 1;
             for (Question question : quiz.getQuestions()) {
-                // Before adding new content, check if we need to add a new page
-                if (document.getPageNumber() > 1) {
-                    // If we're on a new page, manually add "Name" and "SID"
-                    addNameSid(document, subTitleFont);
-                }
+
+                // Check if a new page is needed before adding a question
+                checkAndAddNewPage(document, writer, subTitleFont);
 
                 PdfPTable table = new PdfPTable(3);
                 table.setWidthPercentage(100);
@@ -106,11 +99,6 @@ public class PdfService {
                 document.add(table);
                 document.add(new Paragraph("\n"));
 
-                // Add page break if content overflows
-                if (document.getPageNumber() > 1) {
-                    document.newPage();
-                }
-
                 questionNumber++;
             }
 
@@ -121,45 +109,81 @@ public class PdfService {
         }
     }
 
-    private void addNameSid(Document document, Font subTitleFont) throws Exception {
-        // Name and SID in One Row with Aligned Boxes
+    /**
+     * Ensures "Name" and "SID" are added when a new page starts.
+     */
+    private void checkAndAddNewPage(Document document, PdfWriter writer, Font subTitleFont) throws Exception {
+        float yPosition = writer.getVerticalPosition(true); // Get current Y position
+
+        if (yPosition < 100) { // If less than 100 units left, move to a new page
+            document.newPage();
+            addNameSid(document, subTitleFont);
+        }
+    }
+
+    /**
+     * Adds "Name" and "SID" with 8 SID boxes.
+     */
+    private void addNameSid(Document document, Font subTitleFont) throws DocumentException {
         PdfPTable nameSidTable = new PdfPTable(4);
         nameSidTable.setWidthPercentage(100);
-        nameSidTable.setWidths(new int[]{10, 68, 8, 14});
+        nameSidTable.setWidths(new int[]{10, 55, 8, 27}); // Keeps SID section properly aligned
 
-        PdfPCell nameCell = getCell("Name: ", subTitleFont, Rectangle.NO_BORDER); // No Border for Name Label
-        PdfPCell nameBoxCell = getInvisibleBoxCell(); // No Border for Name Box
+        PdfPCell nameCell = getCell("Name: ", subTitleFont, Rectangle.NO_BORDER);
+        PdfPCell nameBoxCell = getInvisibleCell(); // Invisible name box
         PdfPCell sidCell = getCell("SID: ", subTitleFont, Rectangle.NO_BORDER);
-        PdfPCell sidBoxCell = getAnswerBoxCell(); // Box with Border for SID
+
+        // SID Box with 8 equal-sized squares
+        PdfPTable sidBoxTable = new PdfPTable(8);
+        sidBoxTable.setWidthPercentage(100);
+        float[] boxWidths = {35f, 35f, 35f, 35f, 35f, 35f, 35f, 35f}; // Wide enough for clarity
+        sidBoxTable.setWidths(boxWidths);
+
+        for (int i = 0; i < 8; i++) {
+            PdfPCell smallBox = new PdfPCell();
+            smallBox.setFixedHeight(20f);
+            smallBox.setMinimumHeight(20f);
+            smallBox.setBorder(Rectangle.BOX);
+            sidBoxTable.addCell(smallBox);
+        }
+
+        PdfPCell sidBoxCell = new PdfPCell();
+        sidBoxCell.addElement(sidBoxTable);
+        sidBoxCell.setBorder(Rectangle.NO_BORDER);
 
         nameSidTable.addCell(nameCell);
         nameSidTable.addCell(nameBoxCell);
         nameSidTable.addCell(sidCell);
         nameSidTable.addCell(sidBoxCell);
+
         document.add(nameSidTable);
+
+        document.add(new LineSeparator());
     }
 
-    // Helper Method to Create Text Cells
+    /**
+     * Returns an invisible table cell (used for Name box).
+     */
+    private PdfPCell getInvisibleCell() {
+        PdfPCell cell = new PdfPCell();
+        cell.setBorder(Rectangle.NO_BORDER); // No border, completely invisible
+        return cell;
+    }
+
+
+    // Helper method to create text cells
     private PdfPCell getCell(String text, Font font, int border) {
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
         cell.setBorder(border);
         return cell;
     }
 
-    // Helper Method to Create Rectangular Box with Border
-    private PdfPCell getAnswerBoxCell() {
-        PdfPCell boxCell = new PdfPCell();
-        boxCell.setFixedHeight(25f);
-        boxCell.setMinimumHeight(25f);
-        return boxCell;
-    }
-
-    // Helper Method to Create Invisible Rectangular Box
+    // Helper method to create a blank box for Name
     private PdfPCell getInvisibleBoxCell() {
         PdfPCell boxCell = new PdfPCell();
-        boxCell.setFixedHeight(25f);
-        boxCell.setMinimumHeight(25f);
-        boxCell.setBorder(Rectangle.NO_BORDER); // Make it invisible
+        boxCell.setFixedHeight(20f);
+        boxCell.setMinimumHeight(20f);
+        boxCell.setBorder(Rectangle.BOX);
         return boxCell;
     }
 }
