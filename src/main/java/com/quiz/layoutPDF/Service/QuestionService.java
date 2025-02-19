@@ -1,11 +1,13 @@
 package com.quiz.layoutPDF.Service;
 
 import com.quiz.layoutPDF.models.Question;
+import com.quiz.layoutPDF.models.QuestionDTO;
 import com.quiz.layoutPDF.models.Quiz;
 import com.quiz.layoutPDF.Repository.QuestionRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.Optional;
 
 @Service
@@ -95,7 +97,7 @@ public class QuestionService {
         return newQuestion.getId();
     }
 
-    public Boolean updateQuestionForQuiz(Long questionId, Question question) {
+    public Boolean updateQuestionForQuiz(Long questionId, QuestionDTO question) {
         Question questionToUpdate = questionRepository.findById(questionId).orElse(null);
         if (questionToUpdate == null) {
             return false;
@@ -105,6 +107,8 @@ public class QuestionService {
         questionToUpdate.setQuestionNum(question.getQuestionNum());
         questionToUpdate.setAnswer(question.getAnswer());
         questionToUpdate.setOptions(question.getOptions());
+//        byte[] imageBytes = Base64.getDecoder().decode(question.getImage());
+//        questionToUpdate.setImage(imageBytes);
         try {
             questionRepository.save(questionToUpdate);
             return true;

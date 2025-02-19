@@ -13,15 +13,16 @@ public class Player {
     private Long id;
     private String name;
     private String branch;
-
+    private String password;
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     List<PlayerResponse> playerResponses;
 
-    public Player(Long id, String name, String branch, List<PlayerResponse> playerResponses) {
+    public Player(Long id, String name, String branch, List<PlayerResponse> playerResponses, String password) {
         this.id = id;
         this.name = name;
         this.branch = branch;
         this.playerResponses = playerResponses;
+        this.password = password;
     }
 
     public Player() {
@@ -31,6 +32,14 @@ public class Player {
         this.id = playerId;
         this.name = unknown;
         this.branch = unknown1;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Long getId() {

@@ -2,6 +2,7 @@ package com.quiz.layoutPDF.Controller;
 
 import com.quiz.layoutPDF.Service.QuestionService;
 import com.quiz.layoutPDF.models.Question;
+import com.quiz.layoutPDF.models.QuestionDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,7 +29,7 @@ public class QuestionController {
     public ResponseEntity<String> addQuestionToQuiz(@PathVariable Long quizId, @RequestBody Question question) {
         Long questionId = questionService.addQuestionToQuiz(quizId, question);
         if (questionId != null) {
-            return new ResponseEntity<>("Question added successfully with ID: " + questionId, HttpStatus.CREATED);
+            return new ResponseEntity<>("" + questionId, HttpStatus.CREATED);
         }
         return new ResponseEntity<>("Quiz not found or error occurred", HttpStatus.BAD_REQUEST);
     }
@@ -43,8 +44,9 @@ public class QuestionController {
     }
 
     @PutMapping("/update/{questionId}")
-    public ResponseEntity<String> updateQuestion(@PathVariable Long questionId , @RequestBody Question question) {
+    public ResponseEntity<String> updateQuestion(@PathVariable Long questionId , @RequestBody QuestionDTO question) {
         Boolean updated = questionService.updateQuestionForQuiz(questionId,question);
+        System.out.println(updated);
         if (updated) {
             return new ResponseEntity<>("Question updated successfully with ID: " + questionId, HttpStatus.CREATED);
         }
@@ -54,8 +56,9 @@ public class QuestionController {
     @GetMapping("/{questionId}")
     public ResponseEntity<Question> getQuestionById(@PathVariable Long questionId) {
         Question question = questionService.getQuestionById(questionId);
-        return question != null ? new ResponseEntity<>(question, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        String base64Image = question.getImageBase64();
+        question.setImage(null);
+        return new ResponseEntity<>(question, HttpStatus.OK);
     }
 
     @DeleteMapping("/{questionId}")

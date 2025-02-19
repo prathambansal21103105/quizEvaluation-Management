@@ -30,15 +30,21 @@ public class QuizController {
         this.pdfService = pdfService;
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<Quiz>> getAllQuiz() {
+        return ResponseEntity.ok(quizService.findAllQuizes());
+    }
+
     @GetMapping("/course/{courseCode}")
     public ResponseEntity<List<Quiz>> getQuizByCourseCode(@PathVariable String courseCode) {
         return ResponseEntity.ok(quizService.getAllquizes(courseCode));
     }
 
     @PostMapping("")
-    public ResponseEntity<String> createQuiz(@RequestBody Quiz quiz) {
+    public ResponseEntity<Quiz> createQuiz(@RequestBody Quiz quiz) {
         Long quizId = quizService.addQuiz(quiz);
-        return new ResponseEntity<>("Quiz successfully added with ID: " + quizId, HttpStatus.CREATED);
+        quiz.setId(quizId);
+        return new ResponseEntity<>(quiz, HttpStatus.CREATED);
     }
 
     @GetMapping("/generate-pdf/{quizId}")

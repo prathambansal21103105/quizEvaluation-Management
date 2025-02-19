@@ -130,4 +130,8 @@ public class QuizService {
         }
         return true;
     }
+
+    public List<Quiz> findAllQuizes() {
+        return quizRepository.findAll();
+    }
 }

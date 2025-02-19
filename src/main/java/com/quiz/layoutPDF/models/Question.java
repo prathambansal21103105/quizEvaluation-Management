@@ -1,15 +1,9 @@
 package com.quiz.layoutPDF.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @Entity
@@ -24,12 +18,29 @@ public class Question {
     private Long marks;
     private String answer;
     private List<String> options;
+//    @Lob
+    @JsonIgnore
+    private byte[] image;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     @JsonIgnore
     private Quiz quiz;
 
+    public byte[] getImage() {
+        return image;
+    }
+
+//    public String getImageBase64() {
+//        if (image != null) {
+//            return Base64.getEncoder().encodeToString(image);
+//        }
+//        return null;
+//    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
 
     @Override
     public String toString() {
@@ -52,12 +63,13 @@ public class Question {
         this.answer = answer;
     }
 
-    public Question(Long id, String questionNum, String question, Long marks, List<String> options) {
+    public Question(Long id, String questionNum, String question, Long marks, List<String> options, byte[] image) {
         this.id = id;
         this.questionNum = questionNum;
         this.question = question;
         this.marks = marks;
         this.options = options;
+        this.image = image;
     }
 
     public Question() {}
