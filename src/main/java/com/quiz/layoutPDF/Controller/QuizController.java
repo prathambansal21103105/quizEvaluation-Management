@@ -2,6 +2,7 @@ package com.quiz.layoutPDF.Controller;
 
 import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
+import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -60,6 +61,19 @@ public class QuizController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @GetMapping("/search/{searchInput}")
+    public ResponseEntity<List<Quiz>> searchQuiz(@PathVariable String searchInput) {
+        try {
+            List<Quiz> quizList = quizService.searchQuizBySearchTerm(searchInput);
+            return ResponseEntity.ok(quizList);
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
         System.out.println(id);
@@ -106,14 +120,16 @@ public class QuizController {
         return new ResponseEntity<>("Quiz not updated", HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("duplicate/{id}")
-    public ResponseEntity<String> createDuplicateQuiz(@PathVariable Long id) {
+    @GetMapping("duplicate/{id}")
+    public ResponseEntity<Quiz> createDuplicateQuiz(@PathVariable Long id) {
         Quiz quiz = quizService.getQuizById(id);
         if(quiz != null) {
             Long quizId = quizService.createDuplicate(id);
-            return new ResponseEntity<>("Duplicate quiz created with id " + quizId, HttpStatus.OK);
+            Quiz duplicateQuiz = quizService.getQuizById(quizId);
+            System.out.println(duplicateQuiz.getQuestions().size());
+            return new ResponseEntity<>(duplicateQuiz, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Quiz not found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/evaluate/{id}")

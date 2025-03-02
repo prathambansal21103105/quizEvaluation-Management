@@ -3,7 +3,6 @@ package com.quiz.layoutPDF.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.Base64;
 import java.util.List;
 
 @Entity
@@ -12,24 +11,24 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String questionNum;
+    private Long questionNum;
     @Column(name = "question", columnDefinition = "TEXT")
     private String question;
     private Long marks;
     private String answer;
     private List<String> options;
 //    @Lob
-    @JsonIgnore
-    private byte[] image;
+//    @JsonIgnore
+//    private byte[] image;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     @JsonIgnore
     private Quiz quiz;
 
-    public byte[] getImage() {
-        return image;
-    }
+//    public byte[] getImage() {
+//        return image;
+//    }
 
 //    public String getImageBase64() {
 //        if (image != null) {
@@ -38,9 +37,9 @@ public class Question {
 //        return null;
 //    }
 
-    public void setImage(byte[] image) {
-        this.image = image;
-    }
+//    public void setImage(byte[] image) {
+//        this.image = image;
+//    }
 
     @Override
     public String toString() {
@@ -63,13 +62,13 @@ public class Question {
         this.answer = answer;
     }
 
-    public Question(Long id, String questionNum, String question, Long marks, List<String> options, byte[] image) {
+    public Question(Long id, Long questionNum, String question, Long marks, List<String> options) {
         this.id = id;
         this.questionNum = questionNum;
         this.question = question;
         this.marks = marks;
         this.options = options;
-        this.image = image;
+//        this.image = image;
     }
 
     public Question() {}
@@ -82,11 +81,11 @@ public class Question {
         this.id = id;
     }
 
-    public String getQuestionNum() {
+    public Long getQuestionNum() {
         return questionNum;
     }
 
-    public void setQuestionNum(String questionNum) {
+    public void setQuestionNum(Long questionNum) {
         this.questionNum = questionNum;
     }
 

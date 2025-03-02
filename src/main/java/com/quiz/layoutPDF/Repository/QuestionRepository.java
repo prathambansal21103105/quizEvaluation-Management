@@ -10,9 +10,9 @@ import java.util.List;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    @Query("SELECT q.answer FROM Question q WHERE q.quiz.id = :quizId ORDER BY q.id")
+    @Query("SELECT q.answer FROM Question q WHERE q.quiz.id = :quizId ORDER BY q.questionNum")
     List<String> findAnswersByQuizId(@Param("quizId") Long quizId);
 
-    @Query("SELECT q.marks FROM Question q WHERE q.quiz.id = :quizId ORDER BY q.id")
+    @Query("SELECT q.marks FROM Question q WHERE q.quiz.id = :quizId ORDER BY q.questionNum")
     List<Long> findMarksByQuizId(@Param("quizId") Long quizId);
 }

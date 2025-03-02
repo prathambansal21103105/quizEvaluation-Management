@@ -14,6 +14,7 @@ public class PlayerResponse {
     private Long id;
     private Long score= 0L;
     private List<String> markedResponses = new ArrayList<>();
+    private List<Long> scores = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", nullable = false)
@@ -25,15 +26,36 @@ public class PlayerResponse {
     @JsonIgnore
     private Quiz quiz;
 
-    public PlayerResponse(Long id, Long score, List<String> markedResponses, Player player, Quiz quiz) {
+    public PlayerResponse(Long id, Long score, List<String> markedResponses, Player player, Quiz quiz, List<Long> scores) {
         this.id = id;
         this.score = score;
         this.markedResponses = markedResponses;
         this.player = player;
         this.quiz = quiz;
+        this.scores = scores;
     }
 
     public PlayerResponse() {
+    }
+
+    public List<Long> getScores() {
+        return scores;
+    }
+
+    public void setScores(List<Long> scores) {
+        this.scores = scores;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerResponse{" +
+                "id=" + id +
+                ", score=" + score +
+                ", markedResponses=" + markedResponses +
+                ", scores=" + scores +
+                ", player=" + player +
+                ", quiz=" + quiz +
+                '}';
     }
 
     public Long getId() {
@@ -76,12 +98,4 @@ public class PlayerResponse {
         this.quiz = quiz;
     }
 
-    @Override
-    public String toString() {
-        return "PlayerResponse{" +
-                ", id=" + id +
-                ", markedResponses=" + markedResponses +
-                ", score=" + score +
-                '}';
-    }
 }

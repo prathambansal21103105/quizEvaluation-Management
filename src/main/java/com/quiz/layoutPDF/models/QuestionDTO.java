@@ -5,14 +5,14 @@ import java.util.List;
 public class QuestionDTO {
     private Long id;
 
-    private String questionNum;
+    private Long questionNum;
     private String question;
     private Long marks;
     private String answer;
     private List<String> options;
     private String image;
 
-    public QuestionDTO(Long id, String questionNum, String question, Long marks, String answer, List<String> options, String image) {
+    public QuestionDTO(Long id, Long questionNum, String question, Long marks, String answer, List<String> options, String image) {
         this.id = id;
         this.questionNum = questionNum;
         this.question = question;
@@ -30,11 +30,11 @@ public class QuestionDTO {
         this.id = id;
     }
 
-    public String getQuestionNum() {
+    public Long getQuestionNum() {
         return questionNum;
     }
 
-    public void setQuestionNum(String questionNum) {
+    public void setQuestionNum(Long questionNum) {
         this.questionNum = questionNum;
     }
 

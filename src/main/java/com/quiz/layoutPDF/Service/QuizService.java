@@ -5,6 +5,9 @@ import com.quiz.layoutPDF.Repository.QuizRepository;
 import com.quiz.layoutPDF.models.PlayerResponse;
 import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 
@@ -18,6 +21,8 @@ public class QuizService {
     private final QuestionService questionService;
     private final QuestionRepository questionRepository;
     private final PlayerResponseService playerResponseService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository, PlayerResponseService playerResponseService) {
         this.quizRepository = quizRepository;
@@ -36,8 +41,9 @@ public class QuizService {
     }
 
     public Quiz getQuizById(Long id) {
-        Optional<Quiz> quizOptional = quizRepository.findById(id);
-        return quizOptional.orElse(null);
+//        System.out.println(quizOptional);
+//        System.out.println(quizOptional.get().getQuestions());
+        return quizRepository.findByIdWithQuestions(id);
     }
 
     public Boolean deleteQuiz(Long id) {
@@ -82,22 +88,26 @@ public class QuizService {
         }
     }
 
+    @Transactional
     public Long createDuplicate(Long id) {
         Quiz savedQuiz = getQuizById(id);
         List<Question> questions = savedQuiz.getQuestions();
         Quiz newQuiz = new Quiz(savedQuiz.getTitle() + " (Duplicate)", savedQuiz.getCourse(), savedQuiz.getCourseCode(), savedQuiz.getMaxMarks(),new ArrayList<>(),new ArrayList<>());
         Quiz duplicateQuiz = quizRepository.save(newQuiz);
-        for(Question question : questions){
+        List<Question> newQuestions = new ArrayList<>();
+        for (Question question : questions) {
             Question newQuestion = new Question();
             newQuestion.setQuestion(question.getQuestion());
             newQuestion.setAnswer(question.getAnswer());
             newQuestion.setQuestionNum(question.getQuestionNum());
             newQuestion.setMarks(question.getMarks());
-            List<String> newOptions = new ArrayList<>(question.getOptions());
-            newQuestion.setOptions(newOptions);
+            newQuestion.setOptions(new ArrayList<>(question.getOptions()));
             newQuestion.setQuiz(duplicateQuiz);
-            questionRepository.save(newQuestion);
+            newQuestions.add(newQuestion);
         }
+        questionRepository.saveAll(newQuestions); // Batch save all questions
+        entityManager.flush();
+        entityManager.clear();
         return duplicateQuiz.getId();
     }
 
@@ -111,13 +121,18 @@ public class QuizService {
                 for (PlayerResponse playerResponse : responsesList) {
                     int count = 0;
                     Long playerScore = 0L;
+                    List<Long> scores = new ArrayList<>();
                     for (String markedAnswer : playerResponse.getMarkedResponses()) {
                         if (markedAnswer.equals(answers.get(count))) {
                             playerScore += marks.get(count);
+                            scores.add(marks.get(count));
+                        }
+                        else{
+                            scores.add(0L);
                         }
                         count++;
                     }
-                    boolean updatedPlayerResponse = playerResponseService.updateScore(playerResponse.getId(), playerScore);
+                    boolean updatedPlayerResponse = playerResponseService.updateScore(playerResponse.getId(), playerScore, scores);
                     if(!updatedPlayerResponse){
                         return false;
                     }
@@ -132,6 +147,10 @@ public class QuizService {
     }
 
     public List<Quiz> findAllQuizes() {
-        return quizRepository.findAll();
+        return quizRepository.findAllQuizes();
+    }
+
+    public List<Quiz> searchQuizBySearchTerm(String searchInput) {
+        return quizRepository.findByTitleContainingIgnoreCase(searchInput);
     }
 }

@@ -124,12 +124,13 @@ public class PlayerResponseService {
         return true;
     }
 
-    public boolean updateScore(Long id, Long playerScore) throws Exception {
+    public boolean updateScore(Long id, Long playerScore, List<Long> scores) throws Exception {
         try {
             Optional<PlayerResponse> playerResponseOpt = playerResponseRepository.findById(id);
             if (playerResponseOpt.isPresent()) {
                 PlayerResponse playerResponse = playerResponseOpt.get();
                 playerResponse.setScore(playerScore);
+                playerResponse.setScores(scores);
                 playerResponseRepository.save(playerResponse);
             }
         }

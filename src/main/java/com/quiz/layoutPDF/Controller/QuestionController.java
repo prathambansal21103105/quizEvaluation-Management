@@ -57,7 +57,7 @@ public class QuestionController {
     public ResponseEntity<Question> getQuestionById(@PathVariable Long questionId) {
         Question question = questionService.getQuestionById(questionId);
 //        String base64Image = question.getImageBase64();
-        question.setImage(null);
+//        question.setImage(null);
         return new ResponseEntity<>(question, HttpStatus.OK);
     }
 
