@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +57,7 @@ public class QuizService {
 
     public Boolean addAnswersForQuiz(Quiz quiz, List<String> answers) {
         List<Question> questions = quiz.getQuestions();
+        questions.sort(Comparator.comparingLong(Question::getQuestionNum));
         int counter = 0;
         try{
             for (Question question : questions) {

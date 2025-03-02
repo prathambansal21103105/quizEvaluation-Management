@@ -7,8 +7,17 @@ import com.quiz.layoutPDF.Repository.PlayerResponseRepository;
 import com.quiz.layoutPDF.Repository.PlayerRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
 import com.quiz.layoutPDF.models.Quiz;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -139,5 +148,61 @@ public class PlayerResponseService {
             throw new Exception(e.getMessage());
         }
         return true;
+    }
+
+    public ResponseEntity<byte[]> generateResponseExcel(Long quizId) {
+        List<PlayerResponse> responses = playerResponseRepository.findByQuizIdOrderByPlayerId(quizId);
+
+        if (responses.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(("No responses found for quiz ID: " + quizId).getBytes());
+        }
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Quiz Responses");
+            Row headerRow = sheet.createRow(0);
+
+            // Header columns
+            headerRow.createCell(0).setCellValue("Player ID");
+            headerRow.createCell(1).setCellValue("Total Score");
+
+            int maxQuestions = responses.get(0).getScores().size();
+            for (int i = 0; i < maxQuestions; i++) {
+                headerRow.createCell(2 + i).setCellValue("Score Q" + (i + 1));
+                headerRow.createCell(2 + maxQuestions + i).setCellValue("Q" + (i + 1));
+            }
+
+            // Filling data
+            int rowNum = 1;
+            for (PlayerResponse response : responses) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(response.getPlayer().getId());
+                row.createCell(1).setCellValue(response.getScore());
+
+                List<Long> scores = response.getScores();
+                List<String> markedResponses = response.getMarkedResponses();
+
+                for (int i = 0; i < scores.size(); i++) {
+                    row.createCell(2 + i).setCellValue(scores.get(i));
+                    row.createCell(2 + maxQuestions + i).setCellValue(markedResponses.get(i));
+                }
+            }
+
+            // Convert workbook to byte array
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+
+            // Set headers for file download
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=quiz_responses.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(outputStream.toByteArray());
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error generating Excel file: " + e.getMessage()).getBytes());
+        }
     }
 }

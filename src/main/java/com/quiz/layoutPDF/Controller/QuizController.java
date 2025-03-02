@@ -1,5 +1,6 @@
 package com.quiz.layoutPDF.Controller;
 
+import com.quiz.layoutPDF.Service.PlayerResponseService;
 import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
 import com.quiz.layoutPDF.models.Question;
@@ -25,10 +26,12 @@ import java.util.List;
 public class QuizController {
     private QuizService quizService;
     private PdfService pdfService;
+    private PlayerResponseService playerResponseService;
 
-    public QuizController(QuizService quizService, PdfService pdfService) {
+    public QuizController(QuizService quizService, PdfService pdfService, PlayerResponseService playerResponseService) {
         this.quizService = quizService;
         this.pdfService = pdfService;
+        this.playerResponseService = playerResponseService;
     }
 
     @GetMapping("")
@@ -132,7 +135,7 @@ public class QuizController {
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/evaluate/{id}")
+    @GetMapping("/evaluate/{id}")
     public ResponseEntity<String> evaluateQuiz(@PathVariable Long id) {
         try {
             Boolean evaluate = quizService.evaluate(id);
@@ -145,5 +148,11 @@ public class QuizController {
             return new ResponseEntity<>("Quiz not evaluated", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>("Quiz couldn't be evaluated", HttpStatus.OK);
+    }
+
+    @GetMapping("/generate-csv/{quizId}")
+    public ResponseEntity<byte[]> generateResultsCsv(@PathVariable Long quizId) {
+        System.out.println(quizId);
+        return playerResponseService.generateResponseExcel(quizId);
     }
 }

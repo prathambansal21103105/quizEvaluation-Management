@@ -13,6 +13,8 @@ public interface PlayerResponseRepository extends JpaRepository<PlayerResponse, 
 
     List<PlayerResponse> findByQuizId(Long quizId);
 
+    List<PlayerResponse> findByQuizIdOrderByPlayerId(Long quizId);
+
     void deleteByQuizId(Long quizId);
 
 }

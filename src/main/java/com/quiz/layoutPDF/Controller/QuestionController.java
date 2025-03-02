@@ -38,7 +38,7 @@ public class QuestionController {
     public ResponseEntity<String> addDuplicateQuestionToQuiz(@PathVariable Long quizId, @RequestBody Question question) {
         Long questionId = questionService.createDuplicateQuestionForQuiz(quizId, question);
         if (questionId != null) {
-            return new ResponseEntity<>("Duplicate question added successfully with ID: " + questionId, HttpStatus.CREATED);
+            return new ResponseEntity<>("" + questionId, HttpStatus.CREATED);
         }
         return new ResponseEntity<>("Question not added ", HttpStatus.BAD_REQUEST);
     }
