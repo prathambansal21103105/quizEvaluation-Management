@@ -93,6 +93,7 @@ public class QuestionService {
         newQuestion.setQuestion(question.getQuestion());
         newQuestion.setMarks(question.getMarks());
         newQuestion.setQuestionNum(question.getQuestionNum());
+        newQuestion.setImageId(question.getImageId());
         questionRepository.save(newQuestion);
         return newQuestion.getId();
     }
@@ -107,6 +108,7 @@ public class QuestionService {
         questionToUpdate.setQuestionNum(question.getQuestionNum());
         questionToUpdate.setAnswer(question.getAnswer());
         questionToUpdate.setOptions(question.getOptions());
+        questionToUpdate.setImageId(question.getImageId());
 //        byte[] imageBytes = Base64.getDecoder().decode(question.getImage());
 //        questionToUpdate.setImage(imageBytes);
         try {

@@ -105,6 +105,7 @@ public class QuizService {
             newQuestion.setMarks(question.getMarks());
             newQuestion.setOptions(new ArrayList<>(question.getOptions()));
             newQuestion.setQuiz(duplicateQuiz);
+            newQuestion.setImageId(question.getImageId());
             newQuestions.add(newQuestion);
         }
         questionRepository.saveAll(newQuestions); // Batch save all questions

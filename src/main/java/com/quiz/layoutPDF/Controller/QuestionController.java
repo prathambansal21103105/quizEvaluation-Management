@@ -45,6 +45,7 @@ public class QuestionController {
 
     @PutMapping("/update/{questionId}")
     public ResponseEntity<String> updateQuestion(@PathVariable Long questionId , @RequestBody QuestionDTO question) {
+        System.out.println(question);
         Boolean updated = questionService.updateQuestionForQuiz(questionId,question);
         System.out.println(updated);
         if (updated) {

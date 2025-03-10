@@ -10,16 +10,16 @@ public class QuestionDTO {
     private Long marks;
     private String answer;
     private List<String> options;
-    private String image;
+    private String imageId;
 
-    public QuestionDTO(Long id, Long questionNum, String question, Long marks, String answer, List<String> options, String image) {
+    public QuestionDTO(Long id, Long questionNum, String question, Long marks, String answer, List<String> options, String imageId) {
         this.id = id;
         this.questionNum = questionNum;
         this.question = question;
         this.marks = marks;
         this.answer = answer;
         this.options = options;
-        this.image = image;
+        this.imageId = imageId;
     }
 
     public Long getId() {
@@ -70,12 +70,12 @@ public class QuestionDTO {
         this.options = options;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageId() {
+        return imageId;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class QuestionDTO {
                 ", marks=" + marks +
                 ", answer='" + answer + '\'' +
                 ", options=" + options +
-                ", image='" + image + '\'' +
+                ", imageId='" + imageId + '\'' +
                 '}';
     }
 }

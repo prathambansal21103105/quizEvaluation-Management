@@ -17,14 +17,48 @@ public class Question {
     private Long marks;
     private String answer;
     private List<String> options;
-//    @Lob
-//    @JsonIgnore
-//    private byte[] image;
-
+    private String imageId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     @JsonIgnore
     private Quiz quiz;
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "id=" + id +
+                ", questionNum=" + questionNum +
+                ", question='" + question + '\'' +
+                ", marks=" + marks +
+                ", answer='" + answer + '\'' +
+                ", options=" + options +
+                ", imageId='" + imageId + '\'' +
+                '}';
+    }
+//    @Lob
+//    @JsonIgnore
+
+    public Question(Long id, Long questionNum, String question, Long marks, String answer, List<String> options, String imageId, Quiz quiz) {
+        this.id = id;
+        this.questionNum = questionNum;
+        this.question = question;
+        this.marks = marks;
+        this.answer = answer;
+        this.options = options;
+        this.imageId = imageId;
+        this.quiz = quiz;
+    }
+
+    public String getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
+    }
+//    private byte[] image;
+
+
 
 //    public byte[] getImage() {
 //        return image;
@@ -40,19 +74,6 @@ public class Question {
 //    public void setImage(byte[] image) {
 //        this.image = image;
 //    }
-
-    @Override
-    public String toString() {
-        return "Question{" +
-                "id=" + id +
-                ", questionNum='" + questionNum + '\'' +
-                ", question='" + question + '\'' +
-                ", marks=" + marks +
-                ", answer='" + answer + '\'' +
-                ", options=" + options +
-                ", quiz=" + quiz +
-                '}';
-    }
 
     public String getAnswer() {
         return answer;
