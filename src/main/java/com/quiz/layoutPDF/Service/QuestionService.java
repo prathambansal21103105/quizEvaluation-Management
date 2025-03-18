@@ -120,4 +120,20 @@ public class QuestionService {
             return false;
         }
     }
+
+    public boolean deleteQuestionImageById(Long questionId) {
+        Question questionToUpdate = questionRepository.findById(questionId).orElse(null);
+        if (questionToUpdate == null) {
+            return false;
+        }
+        questionToUpdate.setImageId(null);
+        try {
+            questionRepository.save(questionToUpdate);
+            return true;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
 }

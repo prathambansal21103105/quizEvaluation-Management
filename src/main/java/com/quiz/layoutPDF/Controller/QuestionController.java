@@ -82,4 +82,11 @@ public class QuestionController {
         return new ResponseEntity<>("Question not found or error occurred", HttpStatus.BAD_REQUEST);
     }
 
+    @DeleteMapping("image/{questionId}")
+    public ResponseEntity<String> deleteQuestionImageById(@PathVariable Long questionId) {
+        boolean deleted = questionService.deleteQuestionImageById(questionId);
+        return deleted ? new ResponseEntity<>("Question image deleted successfully", HttpStatus.NO_CONTENT)
+                : new ResponseEntity<>("Question not found or error occurred", HttpStatus.BAD_REQUEST);
+    }
+
 }
