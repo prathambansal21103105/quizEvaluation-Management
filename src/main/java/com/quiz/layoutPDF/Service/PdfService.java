@@ -58,7 +58,7 @@ public class PdfService {
                 PdfPTable table = new PdfPTable(3);
                 table.setWidthPercentage(100);
                 table.setWidths(new int[]{5, 80, 15});
-                table.setSpacingBefore(10f);
+                table.setSpacingBefore(8f);
 
                 PdfPCell questionNumberCell = new PdfPCell(new Phrase(questionNumber + ".", questionFont));
                 questionNumberCell.setBorder(Rectangle.NO_BORDER);
@@ -127,24 +127,29 @@ public class PdfService {
     private void addNameSid(Document document, Font subTitleFont) throws DocumentException {
         PdfPTable nameSidTable = new PdfPTable(4);
         nameSidTable.setWidthPercentage(100);
-        nameSidTable.setWidths(new int[]{10, 55, 8, 27}); // Keeps SID section properly aligned
+        nameSidTable.setWidths(new int[]{10, 30, 8, 52}); // Keeps SID section properly aligned
 
         PdfPCell nameCell = getCell("Name: ", subTitleFont, Rectangle.NO_BORDER);
         PdfPCell nameBoxCell = getInvisibleCell(); // Invisible name box
         PdfPCell sidCell = getCell("SID: ", subTitleFont, Rectangle.NO_BORDER);
 
-        // SID Box with 8 equal-sized squares
-        PdfPTable sidBoxTable = new PdfPTable(8);
+        // SID Box with 8 equal-sized squares and spacing
+        PdfPTable sidBoxTable = new PdfPTable(15); // 8 boxes + 7 spacers
         sidBoxTable.setWidthPercentage(100);
-        float[] boxWidths = {35f, 35f, 35f, 35f, 35f, 35f, 35f, 35f}; // Wide enough for clarity
+        float[] boxWidths = {25f, 8f, 25f, 8f, 25f, 8f, 25f, 8f, 25f, 8f, 25f, 8f, 25f, 8f, 25f}; // Adding spacers
         sidBoxTable.setWidths(boxWidths);
 
         for (int i = 0; i < 8; i++) {
             PdfPCell smallBox = new PdfPCell();
-            smallBox.setFixedHeight(20f);
-            smallBox.setMinimumHeight(20f);
+            smallBox.setFixedHeight(25f);
             smallBox.setBorder(Rectangle.BOX);
             sidBoxTable.addCell(smallBox);
+
+            if (i < 7) { // Add a spacer after each box except the last one
+                PdfPCell spacer = new PdfPCell();
+                spacer.setBorder(Rectangle.NO_BORDER);
+                sidBoxTable.addCell(spacer);
+            }
         }
 
         PdfPCell sidBoxCell = new PdfPCell();
@@ -157,9 +162,11 @@ public class PdfService {
         nameSidTable.addCell(sidBoxCell);
 
         document.add(nameSidTable);
-
+        document.add(new Paragraph(" ", new Font(Font.FontFamily.HELVETICA, 5)));
         document.add(new LineSeparator());
     }
+
+
 
     /**
      * Returns an invisible table cell (used for Name box).
