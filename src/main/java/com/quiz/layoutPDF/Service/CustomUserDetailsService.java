@@ -4,7 +4,6 @@ import com.quiz.layoutPDF.Repository.AuthorRepository;
 import com.quiz.layoutPDF.Repository.PlayerRepository;
 import com.quiz.layoutPDF.models.Author;
 import com.quiz.layoutPDF.models.Player;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

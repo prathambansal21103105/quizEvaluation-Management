@@ -3,7 +3,6 @@ package com.quiz.layoutPDF.Controller;
 import com.quiz.layoutPDF.Service.PlayerResponseService;
 import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
-import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @CrossOrigin

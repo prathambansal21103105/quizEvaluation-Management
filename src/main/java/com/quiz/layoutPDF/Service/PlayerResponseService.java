@@ -172,7 +172,6 @@ public class PlayerResponseService {
                 headerRow.createCell(2 + maxQuestions + i).setCellValue("Q" + (i + 1));
             }
 
-            // Filling data
             int rowNum = 1;
             for (PlayerResponse response : responses) {
                 Row row = sheet.createRow(rowNum++);
@@ -188,11 +187,9 @@ public class PlayerResponseService {
                 }
             }
 
-            // Convert workbook to byte array
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
 
-            // Set headers for file download
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Disposition", "attachment; filename=quiz_responses.xlsx");
 

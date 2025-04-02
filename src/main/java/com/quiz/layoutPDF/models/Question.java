@@ -1,7 +1,14 @@
 package com.quiz.layoutPDF.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 import java.util.List;
 
@@ -23,20 +30,15 @@ public class Question {
     @JsonIgnore
     private Quiz quiz;
 
-    @Override
-    public String toString() {
-        return "Question{" +
-                "id=" + id +
-                ", questionNum=" + questionNum +
-                ", question='" + question + '\'' +
-                ", marks=" + marks +
-                ", answer='" + answer + '\'' +
-                ", options=" + options +
-                ", imageId='" + imageId + '\'' +
-                '}';
+    public Question() {}
+
+    public Question(Long id, Long questionNum, String question, Long marks, List<String> options) {
+        this.id = id;
+        this.questionNum = questionNum;
+        this.question = question;
+        this.marks = marks;
+        this.options = options;
     }
-//    @Lob
-//    @JsonIgnore
 
     public Question(Long id, Long questionNum, String question, Long marks, String answer, List<String> options, String imageId, Quiz quiz) {
         this.id = id;
@@ -56,24 +58,6 @@ public class Question {
     public void setImageId(String imageId) {
         this.imageId = imageId;
     }
-//    private byte[] image;
-
-
-
-//    public byte[] getImage() {
-//        return image;
-//    }
-
-//    public String getImageBase64() {
-//        if (image != null) {
-//            return Base64.getEncoder().encodeToString(image);
-//        }
-//        return null;
-//    }
-
-//    public void setImage(byte[] image) {
-//        this.image = image;
-//    }
 
     public String getAnswer() {
         return answer;
@@ -82,17 +66,6 @@ public class Question {
     public void setAnswer(String answer) {
         this.answer = answer;
     }
-
-    public Question(Long id, Long questionNum, String question, Long marks, List<String> options) {
-        this.id = id;
-        this.questionNum = questionNum;
-        this.question = question;
-        this.marks = marks;
-        this.options = options;
-//        this.image = image;
-    }
-
-    public Question() {}
 
     public Long getId() {
         return id;
@@ -140,6 +113,19 @@ public class Question {
 
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
+    }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "id=" + id +
+                ", questionNum=" + questionNum +
+                ", question='" + question + '\'' +
+                ", marks=" + marks +
+                ", answer='" + answer + '\'' +
+                ", options=" + options +
+                ", imageId='" + imageId + '\'' +
+                '}';
     }
 
 }

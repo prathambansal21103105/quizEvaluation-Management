@@ -41,8 +41,6 @@ public class QuizService {
     }
 
     public Quiz getQuizById(Long id) {
-//        System.out.println(quizOptional);
-//        System.out.println(quizOptional.get().getQuestions());
         return quizRepository.findByIdWithQuestions(id);
     }
 
@@ -109,7 +107,7 @@ public class QuizService {
             newQuestion.setImageId(question.getImageId());
             newQuestions.add(newQuestion);
         }
-        questionRepository.saveAll(newQuestions); // Batch save all questions
+        questionRepository.saveAll(newQuestions);
         entityManager.flush();
         entityManager.clear();
         return duplicateQuiz.getId();

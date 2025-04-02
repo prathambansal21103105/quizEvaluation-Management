@@ -1,11 +1,13 @@
 package com.quiz.layoutPDF.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import java.util.List;
 
@@ -78,13 +80,13 @@ public class Author implements User {
         this.email = email;
     }
 
-//    public List<Quiz> getQuizzes() {
-//        return quizzes;
-//    }
-//
-//    public void setQuizzes(List<Quiz> quizzes) {
-//        this.quizzes = quizzes;
-//    }
+    public List<Quiz> getQuizzes() {
+        return quizzes;
+    }
+
+    public void setQuizzes(List<Quiz> quizzes) {
+        this.quizzes = quizzes;
+    }
 
     @Override
     public String toString() {

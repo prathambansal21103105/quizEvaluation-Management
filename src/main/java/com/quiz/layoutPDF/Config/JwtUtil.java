@@ -1,5 +1,7 @@
-package com.quiz.layoutPDF.models;
-import io.jsonwebtoken.*;
+package com.quiz.layoutPDF.Config;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,7 @@ public class JwtUtil {
 
     public JwtUtil() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        this.key = Keys.hmacShaKeyFor(keyBytes); // Secure key
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String email) {
@@ -22,13 +24,13 @@ public class JwtUtil {
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .signWith(key) // No need for explicit algorithm
+                .signWith(key)
                 .compact();
     }
 
     public String extractEmail(String token) {
         JwtParser jwtParser = Jwts.parser()
-                .verifyWith(key) // Use verifyWith() instead of setSigningKey()
+                .verifyWith(key)
                 .build();
 
         return jwtParser.parseSignedClaims(token)
@@ -39,7 +41,7 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(key) // Use verifyWith()
+                    .verifyWith(key)
                     .build()
                     .parseSignedClaims(token);
 

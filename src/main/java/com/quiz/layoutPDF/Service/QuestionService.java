@@ -7,7 +7,6 @@ import com.quiz.layoutPDF.Repository.QuestionRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.Optional;
 
 @Service
@@ -109,8 +108,6 @@ public class QuestionService {
         questionToUpdate.setAnswer(question.getAnswer());
         questionToUpdate.setOptions(question.getOptions());
         questionToUpdate.setImageId(question.getImageId());
-//        byte[] imageBytes = Base64.getDecoder().decode(question.getImage());
-//        questionToUpdate.setImage(imageBytes);
         try {
             questionRepository.save(questionToUpdate);
             return true;
