@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class QuizService {
@@ -94,7 +93,9 @@ public class QuizService {
     public Long createDuplicate(Long id) {
         Quiz savedQuiz = getQuizById(id);
         List<Question> questions = savedQuiz.getQuestions();
-        Quiz newQuiz = new Quiz(savedQuiz.getTitle() + " (Duplicate)", savedQuiz.getCourse(), savedQuiz.getCourseCode(), savedQuiz.getMaxMarks(),new ArrayList<>(),new ArrayList<>());
+        Quiz newQuiz = new Quiz(savedQuiz.getTitle() + " (Duplicate)", savedQuiz.getCourse(),
+                savedQuiz.getCourseCode(), savedQuiz.getMaxMarks(),new ArrayList<>(),new ArrayList<>(),
+                savedQuiz.getAuthor());
         Quiz duplicateQuiz = quizRepository.save(newQuiz);
         List<Question> newQuestions = new ArrayList<>();
         for (Question question : questions) {
@@ -119,6 +120,7 @@ public class QuizService {
         if(quiz != null) {
             List<String> answers = questionRepository.findAnswersByQuizId(id);
             List<Long> marks = questionRepository.findMarksByQuizId(id);
+
             List<PlayerResponse> responsesList = quiz.getPlayerResponses();
             try {
                 for (PlayerResponse playerResponse : responsesList) {

@@ -1,8 +1,12 @@
 package com.quiz.layoutPDF.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 public class Quiz {
@@ -21,18 +25,24 @@ public class Quiz {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerResponse> playerResponses;
 
-    public Quiz(String title, String course, String courseCode, Long maxMarks, List<Question> questions, List<PlayerResponse> playerResponses) {
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
+    @JsonBackReference
+    private Author author;
+
+    public Quiz() {
+    }
+
+    public Quiz(String title, String course, String courseCode, Long maxMarks, List<Question> questions, List<PlayerResponse> playerResponses, Author author) {
         this.title = title;
         this.course = course;
         this.courseCode = courseCode;
         this.maxMarks = maxMarks;
         this.questions = questions;
         this.playerResponses = playerResponses;
+        this.author = author;
     }
 
-    public Quiz() {}
-
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -89,6 +99,23 @@ public class Quiz {
         this.playerResponses = playerResponses;
     }
 
+    public Author getAuthor() {
+        return author;
+    }
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+//    public Author getAuthor() {
+//        return author;
+//    }
+//
+//    public void setAuthor(Author author) {
+//        this.author = author;
+//    }
+
+
+
     @Override
     public String toString() {
         return "Quiz{" +
@@ -96,7 +123,9 @@ public class Quiz {
                 ", title='" + title + '\'' +
                 ", course='" + course + '\'' +
                 ", courseCode='" + courseCode + '\'' +
-                ", maxMarks=" + maxMarks +
+                ", maxMarks=" + maxMarks + '\''+
                 '}';
     }
+
+
 }
