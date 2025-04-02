@@ -5,6 +5,8 @@ import com.quiz.layoutPDF.Repository.PlayerRepository;
 import com.quiz.layoutPDF.models.Author;
 import com.quiz.layoutPDF.Config.JwtUtil;
 import com.quiz.layoutPDF.models.Player;
+import com.quiz.layoutPDF.models.Role;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,20 +64,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<String> loginUser(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
         Optional<Author> author = authorRepository.findByEmail(email);
         Optional<Player> player = playerRepository.findByEmail(email);
+
         if (author.isPresent() && passwordEncoder.matches(password, author.get().getPassword())) {
-            String token = jwtUtil.generateToken(author.get().getEmail());
-            return ResponseEntity.ok("JWT Token: " + token);
+            String token = jwtUtil.generateToken(email, Role.AUTHOR);
+            return ResponseEntity.ok(token);
+        } else if (player.isPresent() && passwordEncoder.matches(password, player.get().getPassword())) {
+            String token = jwtUtil.generateToken(email, Role.PLAYER);
+            return ResponseEntity.ok(token);
         }
-
-        if (player.isPresent() && passwordEncoder.matches(password, player.get().getPassword())) {
-            String token = jwtUtil.generateToken(player.get().getEmail());
-            return ResponseEntity.ok("JWT Token: " + token);
-        }
-
-        return ResponseEntity.status(401).body("Invalid email or password.");
+        return ResponseEntity.status(401).body("Invalid credentials");
     }
-
 }

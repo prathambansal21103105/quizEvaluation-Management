@@ -3,6 +3,8 @@ package com.quiz.layoutPDF.models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,6 +27,8 @@ public class Author implements User {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<Quiz> quizzes;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.AUTHOR;
 
     public Author() {
     }

@@ -1,9 +1,6 @@
 package com.quiz.layoutPDF.models;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.util.List;
 
@@ -15,6 +12,8 @@ public class Player implements User {
     private String branch;
     private String password;
     private String email;
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.PLAYER;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     List<PlayerResponse> playerResponses;

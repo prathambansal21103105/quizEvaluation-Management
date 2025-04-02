@@ -1,4 +1,5 @@
 package com.quiz.layoutPDF.Config;
+import com.quiz.layoutPDF.models.Role;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -19,9 +20,10 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String email, Role role) {
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role.name())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(key)
@@ -36,6 +38,21 @@ public class JwtUtil {
         return jwtParser.parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+
+    public Role extractRole(String token) {
+        JwtParser jwtParser = Jwts.parser()
+                .verifyWith(key)
+                .build();
+
+        String role = jwtParser.parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
+
+        if (role == null) {
+            throw new IllegalArgumentException("JWT does not contain a role claim!");
+        }
+        return Role.valueOf(role);
     }
 
     public boolean validateToken(String token) {
