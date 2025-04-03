@@ -1,7 +1,9 @@
 package com.quiz.layoutPDF.Service;
 
+import com.quiz.layoutPDF.Repository.AuthorRepository;
 import com.quiz.layoutPDF.Repository.QuestionRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
+import com.quiz.layoutPDF.models.Author;
 import com.quiz.layoutPDF.models.PlayerResponse;
 import com.quiz.layoutPDF.models.Question;
 import com.quiz.layoutPDF.models.Quiz;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuizService {
@@ -21,23 +24,30 @@ public class QuizService {
     private final QuestionService questionService;
     private final QuestionRepository questionRepository;
     private final PlayerResponseService playerResponseService;
+    private final AuthorRepository authorRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
-    public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository, PlayerResponseService playerResponseService) {
+    public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository, PlayerResponseService playerResponseService, AuthorRepository authorRepository) {
         this.quizRepository = quizRepository;
         this.questionService = questionService;
         this.questionRepository = questionRepository;
         this.playerResponseService = playerResponseService;
+        this.authorRepository = authorRepository;
     }
 
     public List<Quiz> getAllquizes(String courseCode) {
         return quizRepository.findByCourseCode(courseCode);
     }
 
-    public Long addQuiz(Quiz quiz) {
-        Quiz savedQuiz = quizRepository.save(quiz);
-        return savedQuiz.getId();
+    public Long addQuizForAuthor(Quiz quiz, String email) {
+        Optional<Author> author = authorRepository.findByEmail(email);
+        if(author.isPresent()){
+            quiz.setAuthor(author.get());
+            Quiz savedQuiz = quizRepository.save(quiz);
+            return savedQuiz.getId();
+        }
+        return null;
     }
 
     public Quiz getQuizById(Long id) {

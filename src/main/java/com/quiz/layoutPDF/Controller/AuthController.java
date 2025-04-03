@@ -6,7 +6,6 @@ import com.quiz.layoutPDF.models.Author;
 import com.quiz.layoutPDF.Config.JwtUtil;
 import com.quiz.layoutPDF.models.Player;
 import com.quiz.layoutPDF.models.Role;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -64,17 +65,47 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestParam String email, @RequestParam String password) {
         Optional<Author> author = authorRepository.findByEmail(email);
         Optional<Player> player = playerRepository.findByEmail(email);
 
+        Map<String, Object> response = new HashMap<>();
+
         if (author.isPresent() && passwordEncoder.matches(password, author.get().getPassword())) {
             String token = jwtUtil.generateToken(email, Role.AUTHOR);
-            return ResponseEntity.ok(token);
+            response.put("message", token);
+            response.put("flag", 1);
+            return ResponseEntity.ok(response);
         } else if (player.isPresent() && passwordEncoder.matches(password, player.get().getPassword())) {
             String token = jwtUtil.generateToken(email, Role.PLAYER);
-            return ResponseEntity.ok(token);
+            response.put("message", token);
+            response.put("flag", 0);
+            return ResponseEntity.ok(response);
         }
-        return ResponseEntity.status(401).body("Invalid credentials");
+
+        response.put("flag", 2);
+        response.put("message", "Invalid credentials");
+        return ResponseEntity.status(401).body(response);
+    }
+
+    @PostMapping("/login/password")
+    public ResponseEntity<String> setPassword(@RequestParam String email, @RequestParam String password) {
+        Optional<Author> author = authorRepository.findByEmail(email);
+        Optional<Player> player = playerRepository.findByEmail(email);
+
+
+        if (author.isPresent()) {
+            Author savedAuthor = author.get();
+            savedAuthor.setPassword(passwordEncoder.encode(password));
+            authorRepository.save(savedAuthor);
+            return ResponseEntity.ok("Password changed successfully for author!");
+        } else if (player.isPresent()) {
+            Player savedPlayer = player.get();
+            savedPlayer.setPassword(passwordEncoder.encode(password));
+            playerRepository.save(savedPlayer);
+            return ResponseEntity.ok("Password changed successfully for student!");
+        }
+
+        return ResponseEntity.status(401).body("Invalid email!");
     }
 }

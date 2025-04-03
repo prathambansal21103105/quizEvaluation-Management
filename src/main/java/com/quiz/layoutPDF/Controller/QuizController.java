@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/quiz")
 public class QuizController {
@@ -42,9 +42,9 @@ public class QuizController {
         return ResponseEntity.ok(quizService.getAllquizes(courseCode));
     }
 
-    @PostMapping("")
-    public ResponseEntity<Quiz> createQuiz(@RequestBody Quiz quiz) {
-        Long quizId = quizService.addQuiz(quiz);
+    @PostMapping("{email}")
+    public ResponseEntity<Quiz> createQuizForAuthor(@PathVariable String email,@RequestBody Quiz quiz) {
+        Long quizId = quizService.addQuizForAuthor(quiz,email);
         quiz.setId(quizId);
         return new ResponseEntity<>(quiz, HttpStatus.CREATED);
     }

@@ -50,4 +50,9 @@ public class PlayerService {
         }
         return false;
     }
+
+    public Player getPlayerByEmail(String email) {
+        Optional<Player> playerOpt = playerRepository.findByEmail(email);
+        return playerOpt.orElse(null);
+    }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/author")
 public class AuthorController {
@@ -22,6 +22,16 @@ public class AuthorController {
     @Autowired
     public AuthorController(AuthorService authorService) {
         this.authorService = authorService;
+    }
+
+    @GetMapping("/emailFetch/{email}")
+    public ResponseEntity<Author> getAuthorByEmail(@PathVariable String email) {
+        Author savedAuthor = authorService.getAuthorByEmail(email);
+        System.out.println(savedAuthor);
+        if (savedAuthor != null) {
+            return ResponseEntity.ok(savedAuthor);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{id}")

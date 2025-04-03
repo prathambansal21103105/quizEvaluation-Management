@@ -25,4 +25,9 @@ public class AuthorService {
         Optional<Author> author = authorRepository.findById(id);
         return author.orElse(null);
     }
+
+    public Author getAuthorByEmail(String email) {
+        Optional<Author> author = authorRepository.findByEmail(email);
+        return author.orElse(null);
+    }
 }

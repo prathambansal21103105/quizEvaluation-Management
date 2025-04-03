@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/player")
 public class PlayerController {
@@ -37,6 +37,15 @@ public class PlayerController {
     public ResponseEntity<String> createPlayer(@RequestBody Player player) {
         Long playerId = playerService.createPlayer(player);
         return new ResponseEntity<>("Player successfully added with ID: " + playerId, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/emailFetch/{email}")
+    public ResponseEntity<Player> getPlayerByEmail(@PathVariable String email) {
+        Player player = playerService.getPlayerByEmail(email);
+        if(player == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(player);
     }
 
     @GetMapping("/{id}")
