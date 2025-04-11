@@ -2,6 +2,7 @@ package com.quiz.layoutPDF.Controller;
 
 import com.quiz.layoutPDF.Service.PlayerService;
 import com.quiz.layoutPDF.models.Player;
+import com.quiz.layoutPDF.models.PlayerQuizStatsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -75,4 +76,8 @@ public class PlayerController {
         return new ResponseEntity<>("Player not updated", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/stats/{id}")
+    public ResponseEntity<List<PlayerQuizStatsResponse>> getPlayerQuizStats(@PathVariable Long id) {
+        return ResponseEntity.ok(playerService.getPlayerQuizStats(id));
+    }
 }

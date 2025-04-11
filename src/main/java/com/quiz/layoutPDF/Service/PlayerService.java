@@ -2,6 +2,7 @@ package com.quiz.layoutPDF.Service;
 
 import com.quiz.layoutPDF.models.Player;
 import com.quiz.layoutPDF.Repository.PlayerRepository;
+import com.quiz.layoutPDF.models.PlayerQuizStatsResponse;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -54,5 +55,9 @@ public class PlayerService {
     public Player getPlayerByEmail(String email) {
         Optional<Player> playerOpt = playerRepository.findByEmail(email);
         return playerOpt.orElse(null);
+    }
+
+    public List<PlayerQuizStatsResponse> getPlayerQuizStats(Long id) {
+        return playerRepository.getStatsForPlayer(id);
     }
 }

@@ -4,6 +4,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
@@ -11,13 +12,28 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.quiz.layoutPDF.Repository.QuestionImageRepository;
+import com.quiz.layoutPDF.models.QuestionImage;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Optional;
 import com.quiz.layoutPDF.models.Quiz;
 import com.quiz.layoutPDF.models.Question;
+import javax.imageio.ImageIO;
+import java.util.List;
 
 @Service
 public class PdfService {
+
+    private final QuestionImageRepository questionImageRepository;
+    public PdfService(QuestionImageRepository questionImageRepository) {
+        this.questionImageRepository = questionImageRepository;
+    }
 
     public byte[] generateQuizPdf(Quiz quiz) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -47,7 +63,11 @@ public class PdfService {
             Font marksFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
 
             int questionNumber = 1;
-            for (Question question : quiz.getQuestions()) {
+            List<Question> sortedQuestions = quiz.getQuestions()
+                    .stream()
+                    .sorted(Comparator.comparingLong(Question::getQuestionNum))
+                    .toList();
+            for (Question question : sortedQuestions) {
 
                 checkAndAddNewPage(document, writer, subTitleFont);
 
@@ -66,6 +86,23 @@ public class PdfService {
                 questionTextCell.setBorder(Rectangle.NO_BORDER);
                 questionTextCell.setPaddingTop(-3f);
                 questionTextCell.addElement(new Paragraph(question.getQuestion(), questionFont));
+
+                if (question.getImageId() != null && !question.getImageId().isEmpty()) {
+                    BufferedImage bufferedImage = fetchImage(question.getImageId());
+                    if (bufferedImage != null) {
+                        try {
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ImageIO.write(bufferedImage, "png", baos);
+                            byte[] imageBytes = baos.toByteArray();
+
+                            Image questionImage = Image.getInstance(imageBytes);
+                            questionImage.scaleToFit(200, 200);
+                            questionTextCell.addElement(questionImage);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Error processing image for PDF", e);
+                        }
+                    }
+                }
 
                 int optionNumber = 1;
                 for (String option : question.getOptions()) {
@@ -102,6 +139,22 @@ public class PdfService {
             return outputStream.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Error generating PDF", e);
+        }
+    }
+
+    private BufferedImage fetchImage(String imageId) {
+        Optional<QuestionImage> image = questionImageRepository.findById(imageId);
+        if (image.isPresent()) {
+            QuestionImage questionImage = image.get();
+            System.out.println(questionImage);
+            byte[] imageData = questionImage.getImageData();
+            try {
+                return ImageIO.read(new ByteArrayInputStream(imageData));
+            } catch (IOException e) {
+                throw new RuntimeException("Error reading image data", e);
+            }
+        } else {
+            throw new EntityNotFoundException("Image not found for ID: " + imageId);
         }
     }
 
@@ -155,26 +208,15 @@ public class PdfService {
         document.add(new LineSeparator());
     }
 
-
-
     private PdfPCell getInvisibleCell() {
         PdfPCell cell = new PdfPCell();
         cell.setBorder(Rectangle.NO_BORDER);
         return cell;
     }
 
-
     private PdfPCell getCell(String text, Font font, int border) {
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
         cell.setBorder(border);
         return cell;
-    }
-
-    private PdfPCell getInvisibleBoxCell() {
-        PdfPCell boxCell = new PdfPCell();
-        boxCell.setFixedHeight(20f);
-        boxCell.setMinimumHeight(20f);
-        boxCell.setBorder(Rectangle.BOX);
-        return boxCell;
     }
 }

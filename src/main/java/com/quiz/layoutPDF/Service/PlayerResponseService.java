@@ -1,5 +1,7 @@
 package com.quiz.layoutPDF.Service;
 
+import com.quiz.layoutPDF.Controller.AuthController;
+import com.quiz.layoutPDF.Controller.AuthorController;
 import com.quiz.layoutPDF.models.Player;
 import com.quiz.layoutPDF.models.PlayerResponse;
 import com.quiz.layoutPDF.models.PlayerResponseDTO;
@@ -14,8 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,11 +30,13 @@ public class PlayerResponseService {
     private final PlayerResponseRepository playerResponseRepository;
     private final PlayerRepository playerRepository;
     private final QuizRepository quizRepository;
+    private final AuthController authController;
 
-    public PlayerResponseService(PlayerResponseRepository playerResponseRepository, PlayerRepository playerRepository, QuizRepository quizRepository) {
+    public PlayerResponseService(PlayerResponseRepository playerResponseRepository, PlayerRepository playerRepository, QuizRepository quizRepository, AuthController authController) {
         this.playerResponseRepository = playerResponseRepository;
         this.playerRepository = playerRepository;
         this.quizRepository = quizRepository;
+        this.authController = authController;
     }
 
     public List<PlayerResponse> getAllPlayerResponses() {
@@ -64,6 +68,9 @@ public class PlayerResponseService {
                     newPlayer.setId(playerResponseDTO.getPlayerId());
                     newPlayer.setName("Unknown");
                     newPlayer.setBranch("Unknown");
+                    newPlayer.setEmail(playerResponseDTO.getPlayerId() + "@gmail.com");
+                    String newPassword = playerResponseDTO.getPlayerId()+"";
+                    newPlayer.setPassword(authController.createPassword(newPassword));
                     return playerRepository.save(newPlayer);
                 });
 

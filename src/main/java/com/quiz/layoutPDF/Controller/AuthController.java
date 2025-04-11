@@ -39,6 +39,10 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    public String createPassword(String password){
+        return passwordEncoder.encode(password);
+    }
+
     @PostMapping("/register/author")
     public ResponseEntity<String> registerAuthor(@RequestBody Author author) {
         if (authorRepository.findByEmail(author.getEmail()).isPresent()) {
@@ -54,8 +58,8 @@ public class AuthController {
         if (playerRepository.findByEmail(player.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Player with this email already exists.");
         }
-
-        if (playerRepository.findById(player.getId()).isPresent()) {
+        Optional<Player> existingPlayer = playerRepository.findById(player.getId());
+        if (existingPlayer.isPresent()) {
             return ResponseEntity.badRequest().body("Player with this ID already exists.");
         }
 
