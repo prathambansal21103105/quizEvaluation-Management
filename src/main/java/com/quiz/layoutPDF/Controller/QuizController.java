@@ -3,6 +3,7 @@ package com.quiz.layoutPDF.Controller;
 import com.quiz.layoutPDF.Service.PlayerResponseService;
 import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
+import com.quiz.layoutPDF.models.PdfRequest;
 import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -49,11 +50,18 @@ public class QuizController {
         return new ResponseEntity<>(quiz, HttpStatus.CREATED);
     }
 
-    @GetMapping("/generate-pdf/{quizId}")
-    public ResponseEntity<byte[]> generateQuizPdf(@PathVariable Long quizId) {
+    @PostMapping("/generate-pdf/{quizId}")
+    public ResponseEntity<byte[]> generateQuizPdf(@PathVariable Long quizId, @RequestBody PdfRequest format) {
         Quiz quiz = quizService.getQuizById(quizId);
+        System.out.println(format);
         if(quiz != null) {
-            byte[] pdfContent = pdfService.generateQuizPdf(quiz);
+            byte[] pdfContent;
+            if(format.getFlag()==0) {
+                pdfContent = pdfService.generateQuizPdf(quiz);
+            }
+            else{
+                pdfContent = pdfService.generateCustomQuizPdf(quiz, format);
+            }
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=quiz_" + quizId + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)

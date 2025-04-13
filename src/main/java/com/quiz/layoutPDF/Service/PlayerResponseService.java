@@ -62,6 +62,7 @@ public class PlayerResponseService {
         if (quiz.isEmpty()) {
             throw new IllegalArgumentException("Quiz not found with ID: " + playerResponseDTO.getQuizId());
         }
+        int numQuestions=quiz.get().getQuestions().size();
         Player player = playerRepository.findById(playerResponseDTO.getPlayerId())
                 .orElseGet(() -> {
                     Player newPlayer = new Player();
@@ -83,8 +84,13 @@ public class PlayerResponseService {
             updatedResponses.addAll(playerResponseDTO.getMarkedResponses());
             playerResponse.setMarkedResponses(updatedResponses);
             playerResponse.setScore(playerResponseDTO.getScore());
-            playerResponseRepository.save(playerResponse);
-            return playerResponse.getId();
+            if(updatedResponses.size()<=numQuestions) {
+                playerResponseRepository.save(playerResponse);
+                return playerResponse.getId();
+            }
+            else{
+                throw new IllegalArgumentException("Marked Responses exceed the number of questions");
+            }
         } else {
             PlayerResponse playerResponse = new PlayerResponse();
             playerResponse.setQuiz(quiz.get());

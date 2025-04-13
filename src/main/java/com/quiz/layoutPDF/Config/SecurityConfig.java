@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register/**", "/auth/login", "/auth/login/**").permitAll()
+                        .requestMatchers("/auth/register/**", "/auth/login", "/auth/login/**", "/playerResponse").permitAll()
                         .requestMatchers("/player/**").hasAuthority("PLAYER")
                         .anyRequest().hasAuthority("AUTHOR")
                 )

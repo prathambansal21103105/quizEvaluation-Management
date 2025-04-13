@@ -13,6 +13,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.quiz.layoutPDF.Repository.QuestionImageRepository;
+import com.quiz.layoutPDF.models.PdfRequest;
 import com.quiz.layoutPDF.models.QuestionImage;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -146,7 +147,7 @@ public class PdfService {
         Optional<QuestionImage> image = questionImageRepository.findById(imageId);
         if (image.isPresent()) {
             QuestionImage questionImage = image.get();
-            System.out.println(questionImage);
+//            System.out.println(questionImage);
             byte[] imageData = questionImage.getImageData();
             try {
                 return ImageIO.read(new ByteArrayInputStream(imageData));
@@ -218,5 +219,122 @@ public class PdfService {
         PdfPCell cell = new PdfPCell(new Phrase(text, font));
         cell.setBorder(border);
         return cell;
+    }
+
+    public byte[] generateCustomQuizPdf(Quiz quiz, PdfRequest format) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+            document.open();
+
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+            Font subTitleFont = FontFactory.getFont(FontFactory.HELVETICA, 12);
+            Font questionFont = FontFactory.getFont(FontFactory.HELVETICA, 12);
+            Font optionFont = FontFactory.getFont(FontFactory.HELVETICA, 11);
+            Font marksFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+            // Title and quiz details
+            document.add(new Paragraph("Quiz " + quiz.getId() + ": " + quiz.getTitle(), titleFont));
+
+            PdfPTable courseTable = new PdfPTable(2);
+            courseTable.setWidthPercentage(100);
+            courseTable.setWidths(new int[]{78, 22});
+            courseTable.addCell(getCell("Course: " + quiz.getCourse() + " (" + quiz.getCourseCode() + ")", subTitleFont, Rectangle.NO_BORDER));
+            courseTable.addCell(getCell("Max Marks: " + quiz.getMaxMarks(), subTitleFont, Rectangle.NO_BORDER));
+            document.add(courseTable);
+
+            addNameSid(document, subTitleFont);
+
+            document.add(new LineSeparator());
+            document.add(new Paragraph("\n"));
+
+            List<Question> sortedQuestions = quiz.getQuestions().stream()
+                    .sorted(Comparator.comparingLong(Question::getQuestionNum))
+                    .toList();
+
+            int questionIndex = 0;
+            int questionNumber = 1;
+            for (int pageSize : format.getQuestionsPerPage()) {
+                if (questionIndex >= sortedQuestions.size()) break;
+
+                if (questionIndex > 0) {
+                    document.newPage();
+                    addNameSid(document, subTitleFont);
+                    document.add(new Paragraph("\n"));
+                }
+
+                for (int i = 0; i < pageSize && questionIndex < sortedQuestions.size(); i++) {
+                    Question question = sortedQuestions.get(questionIndex++);
+
+                    PdfPTable table = new PdfPTable(3);
+                    table.setWidthPercentage(100);
+                    table.setWidths(new int[]{5, 80, 15});
+                    table.setSpacingBefore(8f);
+
+                    PdfPCell questionNumberCell = new PdfPCell(new Phrase(questionNumber + ".", questionFont));
+                    questionNumberCell.setBorder(Rectangle.NO_BORDER);
+                    questionNumberCell.setVerticalAlignment(PdfPCell.ALIGN_TOP);
+                    questionNumberCell.setPaddingTop(5f);
+                    table.addCell(questionNumberCell);
+
+                    PdfPCell questionTextCell = new PdfPCell();
+                    questionTextCell.setBorder(Rectangle.NO_BORDER);
+                    questionTextCell.setPaddingTop(-3f);
+                    questionTextCell.addElement(new Paragraph(question.getQuestion(), questionFont));
+
+                    if (question.getImageId() != null && !question.getImageId().isEmpty()) {
+                        BufferedImage bufferedImage = fetchImage(question.getImageId());
+                        if (bufferedImage != null) {
+                            try {
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                ImageIO.write(bufferedImage, "png", baos);
+                                byte[] imageBytes = baos.toByteArray();
+
+                                Image questionImage = Image.getInstance(imageBytes);
+                                questionImage.scaleToFit(200, 200);
+                                questionTextCell.addElement(questionImage);
+                            } catch (Exception e) {
+                                throw new RuntimeException("Error processing image for PDF", e);
+                            }
+                        }
+                    }
+
+                    int optionNumber = 1;
+                    for (String option : question.getOptions()) {
+                        questionTextCell.addElement(new Paragraph("   " + optionNumber + ". " + option, optionFont));
+                        optionNumber++;
+                    }
+                    table.addCell(questionTextCell);
+
+                    PdfPTable marksAndBoxTable = new PdfPTable(1);
+                    marksAndBoxTable.setWidthPercentage(100);
+
+                    PdfPCell marksCell = new PdfPCell(new Phrase("Marks: " + question.getMarks(), marksFont));
+                    marksCell.setBorder(Rectangle.NO_BORDER);
+                    marksCell.setPaddingBottom(5f);
+                    marksAndBoxTable.addCell(marksCell);
+
+                    PdfPCell answerBoxCell = new PdfPCell();
+                    answerBoxCell.setFixedHeight(25f);
+                    marksAndBoxTable.addCell(answerBoxCell);
+
+                    PdfPCell combinedCell = new PdfPCell();
+                    combinedCell.addElement(marksAndBoxTable);
+                    combinedCell.setBorder(Rectangle.NO_BORDER);
+                    combinedCell.setPaddingLeft(5f);
+                    table.addCell(combinedCell);
+
+                    document.add(table);
+                    document.add(new Paragraph("\n"));
+
+                    questionNumber++;
+                }
+            }
+
+            document.close();
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating custom PDF", e);
+        }
     }
 }

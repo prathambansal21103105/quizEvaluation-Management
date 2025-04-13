@@ -142,6 +142,9 @@ public class QuizService {
                             scores.add(0L);
                         }
                         count++;
+                        if(count == answers.size()){
+                            break;
+                        }
                     }
                     boolean updatedPlayerResponse = playerResponseService.updateScore(playerResponse.getId(), playerScore, scores);
                     if(!updatedPlayerResponse){
