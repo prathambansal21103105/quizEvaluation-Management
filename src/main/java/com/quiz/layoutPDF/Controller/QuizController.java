@@ -5,6 +5,7 @@ import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.Service.PdfService;
 import com.quiz.layoutPDF.models.PdfRequest;
 import com.quiz.layoutPDF.models.Quiz;
+import com.quiz.layoutPDF.models.ReviewWithResponseDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -94,6 +95,12 @@ public class QuizController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/toggleMode/{id}")
+    public ResponseEntity<String> toggleMode(@PathVariable Long id) {
+        Boolean toggled = quizService.toggleMode(id);
+        return new ResponseEntity<>(toggled? "Successfully toggled evaluation mode":"Failed to toggle evaluation mode", HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteQuiz(@PathVariable Long id) {
         Boolean deleted = quizService.deleteQuiz(id);
@@ -160,5 +167,14 @@ public class QuizController {
     public ResponseEntity<byte[]> generateResultsCsv(@PathVariable Long quizId) {
         System.out.println(quizId);
         return playerResponseService.generateResponseExcel(quizId);
+    }
+
+    @GetMapping("/reviewRequests/{quizId}")
+    public ResponseEntity<List<ReviewWithResponseDTO>> reviewResponses(@PathVariable Long quizId) {
+        List<ReviewWithResponseDTO> reviewList = quizService.getReviewResponses(quizId);
+        if(reviewList != null) {
+            return new ResponseEntity<>(reviewList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

@@ -1,7 +1,6 @@
 package com.quiz.layoutPDF.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,6 +25,7 @@ public class Quiz {
     private String course;
     private String courseCode;
     private Long maxMarks;
+    private Boolean evaluationMode = false;
 
     @OneToMany(mappedBy = "quiz", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
@@ -36,6 +38,9 @@ public class Quiz {
     @JsonBackReference
     private Author author;
 
+    @OneToMany(mappedBy = "quiz", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewRequest> reviewRequests;
+
     public Quiz() {
     }
 
@@ -47,6 +52,36 @@ public class Quiz {
         this.questions = questions;
         this.playerResponses = playerResponses;
         this.author = author;
+        this.evaluationMode = false;
+        this.reviewRequests = new ArrayList<>();
+    }
+
+    public Quiz(Long id, String title, String course, String courseCode, Long maxMarks, Boolean evaluationMode, List<Question> questions, List<PlayerResponse> playerResponses, Author author) {
+        this.id = id;
+        this.title = title;
+        this.course = course;
+        this.courseCode = courseCode;
+        this.maxMarks = maxMarks;
+        this.evaluationMode = evaluationMode;
+        this.questions = questions;
+        this.playerResponses = playerResponses;
+        this.author = author;
+    }
+
+    public Boolean getEvaluationMode() {
+        return evaluationMode;
+    }
+
+    public void setEvaluationMode(Boolean evaluationMode) {
+        this.evaluationMode = evaluationMode;
+    }
+
+    public List<ReviewRequest> getReviewRequests() {
+        return reviewRequests;
+    }
+
+    public void setReviewRequests(List<ReviewRequest> reviewRequests) {
+        this.reviewRequests = reviewRequests;
     }
 
     public Long getId() {
@@ -121,7 +156,6 @@ public class Quiz {
 //    }
 
 
-
     @Override
     public String toString() {
         return "Quiz{" +
@@ -129,9 +163,12 @@ public class Quiz {
                 ", title='" + title + '\'' +
                 ", course='" + course + '\'' +
                 ", courseCode='" + courseCode + '\'' +
-                ", maxMarks=" + maxMarks + '\''+
+                ", maxMarks=" + maxMarks +
+                ", evaluationMode=" + evaluationMode +
+//                ", questions=" + questions +
+//                ", playerResponses=" + playerResponses +
+//                ", author=" + author +
+//                ", reviewRequests=" + reviewRequests +
                 '}';
     }
-
-
 }

@@ -1,8 +1,10 @@
 package com.quiz.layoutPDF.Controller;
 
 import com.quiz.layoutPDF.Service.PlayerService;
+import com.quiz.layoutPDF.Service.QuizService;
 import com.quiz.layoutPDF.models.Player;
 import com.quiz.layoutPDF.models.PlayerQuizStatsResponse;
+import com.quiz.layoutPDF.models.Quiz;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,9 +25,11 @@ import java.util.List;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final QuizService quizService;
 
-    public PlayerController(PlayerService playerService) {
+    public PlayerController(PlayerService playerService, QuizService quizService) {
         this.playerService = playerService;
+        this.quizService = quizService;
     }
 
     @GetMapping("")
@@ -79,5 +83,14 @@ public class PlayerController {
     @GetMapping("/stats/{id}")
     public ResponseEntity<List<PlayerQuizStatsResponse>> getPlayerQuizStats(@PathVariable Long id) {
         return ResponseEntity.ok(playerService.getPlayerQuizStats(id));
+    }
+
+    @GetMapping("/quiz/{id}")
+    public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
+        Quiz quiz = quizService.getQuizById(id);
+        if(quiz.getEvaluationMode()){
+            return new ResponseEntity<>(quiz, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(quiz, HttpStatus.NOT_FOUND);
     }
 }

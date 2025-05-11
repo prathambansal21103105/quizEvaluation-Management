@@ -3,10 +3,8 @@ package com.quiz.layoutPDF.Service;
 import com.quiz.layoutPDF.Repository.AuthorRepository;
 import com.quiz.layoutPDF.Repository.QuestionRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
-import com.quiz.layoutPDF.models.Author;
-import com.quiz.layoutPDF.models.PlayerResponse;
-import com.quiz.layoutPDF.models.Question;
-import com.quiz.layoutPDF.models.Quiz;
+import com.quiz.layoutPDF.Repository.ReviewRequestRepository;
+import com.quiz.layoutPDF.models.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -23,15 +21,17 @@ public class QuizService {
     private final QuestionRepository questionRepository;
     private final PlayerResponseService playerResponseService;
     private final AuthorRepository authorRepository;
+    private final ReviewRequestRepository reviewRequestRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
-    public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository, PlayerResponseService playerResponseService, AuthorRepository authorRepository) {
+    public QuizService(QuizRepository quizRepository, QuestionService questionService, QuestionRepository questionRepository, PlayerResponseService playerResponseService, AuthorRepository authorRepository, ReviewRequestRepository reviewRequestRepository) {
         this.quizRepository = quizRepository;
         this.questionService = questionService;
         this.questionRepository = questionRepository;
         this.playerResponseService = playerResponseService;
         this.authorRepository = authorRepository;
+        this.reviewRequestRepository = reviewRequestRepository;
     }
 
     public List<Quiz> getAllquizes(String courseCode) {
@@ -166,5 +166,21 @@ public class QuizService {
 
     public List<Quiz> searchQuizBySearchTerm(String searchInput) {
         return quizRepository.findByTitleContainingIgnoreCase(searchInput);
+    }
+
+    public Boolean toggleMode(Long id) {
+        Optional<Quiz> quizOptional = quizRepository.findById(id);
+        if(quizOptional.isPresent()) {
+            Quiz quiz = quizOptional.get();
+            boolean evaluationMode = quiz.getEvaluationMode();
+            quiz.setEvaluationMode(!evaluationMode);
+            quizRepository.save(quiz);
+            return true;
+        }
+        return false;
+    }
+
+    public List<ReviewWithResponseDTO> getReviewResponses(Long quizId) {
+        return reviewRequestRepository.getAllReviewsForQuiz(quizId);
     }
 }

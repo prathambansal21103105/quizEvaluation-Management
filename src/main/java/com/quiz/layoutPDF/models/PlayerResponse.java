@@ -99,8 +99,8 @@ public class PlayerResponse {
                 ", score=" + score +
                 ", markedResponses=" + markedResponses +
                 ", scores=" + scores +
-                ", player=" + player +
-                ", quiz=" + quiz +
+//                ", player=" + player +
+//                ", quiz=" + quiz +
                 '}';
     }
 

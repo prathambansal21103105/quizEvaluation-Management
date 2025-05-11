@@ -7,6 +7,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,6 +26,10 @@ public class Player implements User {
     @JsonIgnore
     List<PlayerResponse> playerResponses;
 
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<ReviewRequest> reviewRequests;
+
     public Player() {
     }
 
@@ -31,6 +37,7 @@ public class Player implements User {
         this.id = id;
         this.name = name;
         this.branch = branch;
+        this.reviewRequests = new ArrayList<>();
     }
 
     @Override
@@ -40,6 +47,14 @@ public class Player implements User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<ReviewRequest> getReviewRequests() {
+        return reviewRequests;
+    }
+
+    public void setReviewRequests(List<ReviewRequest> reviewRequests) {
+        this.reviewRequests = reviewRequests;
     }
 
     public void setId(Long id) {
