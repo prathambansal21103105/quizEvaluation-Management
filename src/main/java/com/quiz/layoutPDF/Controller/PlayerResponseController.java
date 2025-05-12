@@ -1,6 +1,7 @@
 package com.quiz.layoutPDF.Controller;
 
 import com.quiz.layoutPDF.Service.PlayerResponseService;
+import com.quiz.layoutPDF.models.PlayerResponseCollectionDTO;
 import com.quiz.layoutPDF.models.PlayerResponseDTO;
 import com.quiz.layoutPDF.models.PlayerResponse;
 import org.springframework.http.HttpStatus;
@@ -35,8 +36,8 @@ public class PlayerResponseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<PlayerResponse>> getAllPlayerResponsesForQuiz(@PathVariable Long id) {
-        List<PlayerResponse> playerResponses = playerResponseService.getAllPlayerResponsesForQuiz(id);
+    public ResponseEntity<List<PlayerResponseCollectionDTO>> getAllPlayerResponsesForQuiz(@PathVariable Long id) {
+        List<PlayerResponseCollectionDTO> playerResponses = playerResponseService.getAllPlayerResponsesForQuiz(id);
         return new ResponseEntity<>(playerResponses, HttpStatus.OK);
     }
 
@@ -84,6 +85,21 @@ public class PlayerResponseController {
     public ResponseEntity<String> updatePlayerResponse(@PathVariable Long id, @RequestBody PlayerResponseDTO playerResponseDTO) {
         try {
             Boolean updated = playerResponseService.updatePlayerResponse(id, playerResponseDTO);
+            if (updated) {
+                return new ResponseEntity<>("PlayerResponse successfully updated", HttpStatus.OK);
+            }
+            return new ResponseEntity<>("PlayerResponse not updated", HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>("Error: " + ex.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("")
+    public ResponseEntity<String> updatePlayerResponseByPlayerId(@RequestBody PlayerResponseDTO playerResponseDTO) {
+        try {
+            Boolean updated = playerResponseService.updatePlayerResponseByPlayerId(playerResponseDTO);
             if (updated) {
                 return new ResponseEntity<>("PlayerResponse successfully updated", HttpStatus.OK);
             }

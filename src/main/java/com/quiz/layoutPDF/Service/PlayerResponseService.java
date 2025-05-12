@@ -2,13 +2,10 @@ package com.quiz.layoutPDF.Service;
 
 import com.quiz.layoutPDF.Controller.AuthController;
 import com.quiz.layoutPDF.Controller.AuthorController;
-import com.quiz.layoutPDF.models.Player;
-import com.quiz.layoutPDF.models.PlayerResponse;
-import com.quiz.layoutPDF.models.PlayerResponseDTO;
+import com.quiz.layoutPDF.models.*;
 import com.quiz.layoutPDF.Repository.PlayerResponseRepository;
 import com.quiz.layoutPDF.Repository.PlayerRepository;
 import com.quiz.layoutPDF.Repository.QuizRepository;
-import com.quiz.layoutPDF.models.Quiz;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -43,8 +40,8 @@ public class PlayerResponseService {
         return playerResponseRepository.findAll();
     }
 
-    public List<PlayerResponse> getAllPlayerResponsesForQuiz(Long quizId) {
-        return playerResponseRepository.findByQuizId(quizId);
+    public List<PlayerResponseCollectionDTO> getAllPlayerResponsesForQuiz(Long quizId) {
+        return playerResponseRepository.findResponsesByQuizId(quizId);
     }
 
     public PlayerResponse getPlayerResponseById(Long id) {
@@ -214,5 +211,19 @@ public class PlayerResponseService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(("Error generating Excel file: " + e.getMessage()).getBytes());
         }
+    }
+
+    public Boolean updatePlayerResponseByPlayerId(PlayerResponseDTO playerResponseDTO) {
+        Optional<PlayerResponse> optionalPlayerResponse= playerResponseRepository
+                .findByQuizIdAndPlayerId(playerResponseDTO.getQuizId(),playerResponseDTO.getPlayerId());
+        if(optionalPlayerResponse.isPresent()) {
+            System.out.println(optionalPlayerResponse.get());
+            PlayerResponse playerResponse = optionalPlayerResponse.get();
+            playerResponse.setScore(playerResponseDTO.getScore());
+            playerResponse.setMarkedResponses(playerResponseDTO.getMarkedResponses());
+            playerResponseRepository.save(playerResponse);
+            return true;
+        }
+        return false;
     }
 }
